@@ -2,15 +2,10 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Products</h2>
-        <div>
-            <a href="{{ route('admin.products.trash') }}" class="btn btn-outline-secondary me-2">
-                <i class="fa-solid fa-trash-can"></i> Trash
-            </a>
-            <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
-                <i class="fa-solid fa-plus"></i> Add Product
-            </a>
-        </div>
+        <h2>Categories</h2>
+        <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Add Category
+        </a>
     </div>
 
     @if(session('success'))
@@ -20,43 +15,31 @@
         </div>
     @endif
 
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm" style="max-width: 800px;">
         <div class="card-body">
-            <form action="{{ route('admin.products.index') }}" method="GET" class="mb-4">
-                <div class="input-group" style="max-width: 400px;">
-                    <input type="text" name="search" class="form-control" placeholder="Search by name..."
-                        value="{{ $search }}">
-                    <button class="btn btn-primary" type="submit">Search</button>
-                </div>
-            </form>
-
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
-                            <th>Price</th>
-                            <th>Category</th>
+                            <th>Products Count</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($products as $product)
+                        @forelse($categories as $category)
                             <tr>
-                                <td>{{ $product->id }}</td>
-                                <td>{{ $product->name }}</td>
-                                <td>${{ number_format($product->price, 2) }}</td>
-                                <td>
-                                    <span class="badge bg-secondary">{{ $product->category->name }}</span>
-                                </td>
+                                <td>{{ $category->id }}</td>
+                                <td>{{ $category->name }}</td>
+                                <td>{{ $category->products_count ?? $category->products()->count() }}</td>
                                 <td>
                                     <div class="d-flex gap-2">
-                                        <a href="{{ route('admin.products.edit', $product->id) }}"
+                                        <a href="{{ route('admin.categories.edit', $category->id) }}"
                                             class="btn btn-sm btn-outline-primary">
                                             <i class="fa-solid fa-pen"></i>
                                         </a>
-                                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
+                                        <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST"
                                             class="delete-form">
                                             @csrf
                                             @method('DELETE')
@@ -69,7 +52,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-4">No products found.</td>
+                                <td colspan="4" class="text-center py-4">No categories found.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -77,7 +60,7 @@
             </div>
 
             <div class="mt-4">
-                {{ $products->appends(['search' => $search])->links() }}
+                {{ $categories->links() }}
             </div>
         </div>
     </div>
@@ -89,14 +72,12 @@
 
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "This will move the product to trash!",
+                    text: "Deleting a category will also delete its products!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#1E1E1E',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!',
-                    background: '#fff',
-                    color: '#1E1E1E'
+                    confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         form.submit();
