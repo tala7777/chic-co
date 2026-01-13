@@ -1,94 +1,104 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h3 text-gray-800" style="font-family: 'Playfair Display', serif;">Dashboard & Analytics</h2>
-            <div class="btn-group">
-                <button class="btn btn-outline-secondary btn-sm">Day</button>
-                <button class="btn btn-outline-secondary btn-sm active">Week</button>
-                <button class="btn btn-outline-secondary btn-sm">Month</button>
+    <div class="container-fluid animate-fade-in">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="h2 mb-1" style="font-family: 'Playfair Display', serif; font-weight: 700;">Dashboard</h1>
+                <p class="text-muted small mb-0">Welcome back to your collection overview.</p>
+            </div>
+            <div class="bg-white p-1 rounded-3 shadow-sm d-flex">
+                <button class="btn btn-sm px-3 rounded-2 fw-medium btn-light text-muted">Day</button>
+                <button class="btn btn-sm px-3 rounded-2 fw-medium btn-dark">Week</button>
+                <button class="btn btn-sm px-3 rounded-2 fw-medium btn-light text-muted">Month</button>
             </div>
         </div>
 
         <!-- Widgets -->
         <div class="row g-4 mb-5">
             <div class="col-xl-3 col-md-6">
-                <div class="card border-0 shadow-sm h-100 py-3 border-start border-4 border-primary">
+                <div class="card border-0 shadow-sm h-100 p-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs fw-bold text-primary text-uppercase mb-1">Total Revenue</div>
-                                <div class="h4 mb-0 fw-bold text-dark">12,450 JOD</div>
-                                <small class="text-success"><i class="fa-solid fa-arrow-up"></i> 12% vs last week</small>
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="bg-soft-blush p-2 rounded-3" style="background: rgba(246, 166, 178, 0.1);">
+                                <i class="fas fa-sack-dollar text-primary-custom"
+                                    style="color: var(--color-primary-blush);"></i>
                             </div>
-                            <div class="col-auto">
-                                <i class="fas fa-sack-dollar fa-2x text-gray-300 opacity-25"></i>
-                            </div>
+                            <small class="text-success fw-bold"><i class="fa-solid fa-arrow-up"></i> 12%</small>
                         </div>
+                        <div class="text-muted small text-uppercase fw-bold mb-1"
+                            style="font-size: 0.7rem; letter-spacing: 0.5px;">Total Revenue</div>
+                        <div class="h3 mb-0 fw-bold text-dark">12,450 JOD</div>
                     </div>
                 </div>
             </div>
 
             <div class="col-xl-3 col-md-6">
-                <div class="card border-0 shadow-sm h-100 py-3 border-start border-4 border-success">
+                <div class="card border-0 shadow-sm h-100 p-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs fw-bold text-success text-uppercase mb-1">Orders</div>
-                                <div class="h4 mb-0 fw-bold text-dark">85</div>
-                                <small class="text-success"><i class="fa-solid fa-arrow-up"></i> 5% vs last week</small>
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="p-2 rounded-3" style="background: rgba(30, 30, 30, 0.05);">
+                                <i class="fas fa-boxes-packing text-dark"></i>
                             </div>
-                            <div class="col-auto">
-                                <i class="fas fa-boxes-packing fa-2x text-gray-300 opacity-25"></i>
-                            </div>
+                            <small class="text-success fw-bold"><i class="fa-solid fa-arrow-up"></i> 5%</small>
                         </div>
+                        <div class="text-muted small text-uppercase fw-bold mb-1"
+                            style="font-size: 0.7rem; letter-spacing: 0.5px;">Active Orders</div>
+                        <div class="h3 mb-0 fw-bold text-dark">85</div>
                     </div>
                 </div>
             </div>
 
             <div class="col-xl-3 col-md-6">
-                <div class="card border-0 shadow-sm h-100 py-3 border-start border-4 border-info">
+                <div class="card border-0 shadow-sm h-100 p-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs fw-bold text-info text-uppercase mb-1">Avg. Order Value</div>
-                                <div class="h4 mb-0 fw-bold text-dark">146 JOD</div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="p-2 rounded-3" style="background: rgba(201, 162, 77, 0.1);">
+                                <i class="fas fa-receipt text-gold"></i>
                             </div>
-                            <div class="col-auto">
-                                <i class="fas fa-receipt fa-2x text-gray-300 opacity-25"></i>
-                            </div>
+                            <small class="text-muted fw-bold">Average</small>
                         </div>
+                        <div class="text-muted small text-uppercase fw-bold mb-1"
+                            style="font-size: 0.7rem; letter-spacing: 0.5px;">Avg. Order Value</div>
+                        <div class="h3 mb-0 fw-bold text-dark">146 JOD</div>
                     </div>
                 </div>
             </div>
 
             <div class="col-xl-3 col-md-6">
-                <div class="card border-0 shadow-sm h-100 py-3 border-start border-4 border-warning">
+                <div class="card border-0 shadow-sm h-100 p-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">Conversion Rate</div>
-                                <div class="h4 mb-0 fw-bold text-dark">3.2%</div>
-                                <small class="text-danger"><i class="fa-solid fa-arrow-down"></i> 1% vs last week</small>
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="p-2 rounded-3" style="background: rgba(228, 139, 154, 0.1);">
+                                <i class="fas fa-users-viewfinder" style="color: var(--color-dusty-rose);"></i>
                             </div>
-                            <div class="col-auto">
-                                <i class="fas fa-users-viewfinder fa-2x text-gray-300 opacity-25"></i>
-                            </div>
+                            <small class="text-danger fw-bold"><i class="fa-solid fa-arrow-down"></i> 1%</small>
                         </div>
+                        <div class="text-muted small text-uppercase fw-bold mb-1"
+                            style="font-size: 0.7rem; letter-spacing: 0.5px;">Conversion Rate</div>
+                        <div class="h3 mb-0 fw-bold text-dark">3.2%</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Charts Row -->
-        <div class="row g-4 mb-4">
+        <div class="row g-4">
             <!-- Sales Chart -->
             <div class="col-lg-8">
                 <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 fw-bold text-primary">Sales Overview</h6>
-                        <button class="btn btn-sm btn-light"><i class="fa-solid fa-download"></i></button>
+                    <div class="card-header py-4 bg-white border-0 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 fw-bold text-dark">Performance Trends</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light border-0" data-bs-toggle="dropdown"><i
+                                    class="fa-solid fa-ellipsis-vertical"></i></button>
+                            <div class="dropdown-menu dropdown-menu-end border-0 shadow-sm">
+                                <a class="dropdown-item py-2" href="#"><i class="fa-solid fa-download me-2 small"></i>
+                                    Download Report</a>
+                                <a class="dropdown-item py-2" href="#"><i class="fa-solid fa-share me-2 small"></i> Share
+                                    Stats</a>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="chart-area" style="height: 350px;">
@@ -101,23 +111,22 @@
             <!-- Style Pie Chart -->
             <div class="col-lg-4">
                 <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header py-3 bg-white">
-                        <h6 class="m-0 fw-bold text-primary">Sales by Style Persona</h6>
+                    <div class="card-header py-4 bg-white border-0">
+                        <h6 class="m-0 fw-bold text-dark">Sales by Style</h6>
                     </div>
-                    <div class="card-body">
-                        <div class="chart-pie pt-4 pb-2" style="height: 250px;">
+                    <div class="card-body d-flex flex-column align-items-center">
+                        <div class="chart-pie pt-4 pb-2" style="height: 250px; width: 100%;">
                             <canvas id="myPieChart"></canvas>
                         </div>
-                        <div class="mt-4 text-center small">
-                            <span class="me-2">
-                                <i class="fas fa-circle text-primary"></i> Soft
-                            </span>
-                            <span class="me-2">
-                                <i class="fas fa-circle text-dark"></i> Alt
-                            </span>
-                            <span class="me-2">
-                                <i class="fas fa-circle text-warning"></i> Luxury
-                            </span>
+                        <div class="mt-4 text-center small w-100">
+                            <div class="d-flex justify-content-around">
+                                <span class="d-flex align-items-center small"><i class="fas fa-circle me-2"
+                                        style="color: #F6A6B2; font-size: 8px;"></i> Soft</span>
+                                <span class="d-flex align-items-center small"><i class="fas fa-circle me-2"
+                                        style="color: #1E1E1E; font-size: 8px;"></i> Alt</span>
+                                <span class="d-flex align-items-center small"><i class="fas fa-circle me-2"
+                                        style="color: #C9A24D; font-size: 8px;"></i> Luxury</span>
+                            </div>
                         </div>
                     </div>
                 </div>
