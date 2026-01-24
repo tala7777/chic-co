@@ -41,6 +41,18 @@ class ProductDetail extends Component
         $styleService = new StyleRecommendationService();
         $this->recommendations = $styleService->getRecommendations(collect([$this->product]), 4);
 
+        // Initialize selected color
+        if ($this->product->colors && count($this->product->colors) > 0) {
+            $this->selectedColor = $this->product->colors[0];
+        }
+
+        // Initialize selected size if specified in metadata, otherwise default to M if it exists in options
+        if ($this->product->sizes && count($this->product->sizes) > 0) {
+            $this->selectedSize = in_array('M', $this->product->sizes) ? 'M' : $this->product->sizes[0];
+        } else {
+            $this->selectedSize = 'M';
+        }
+
         // Debug logging
         \Log::info('ProductDetail Recommendations Debug', [
             'product_id' => $id,
@@ -51,13 +63,13 @@ class ProductDetail extends Component
         ]);
     }
 
-    public $selectedSize = 'M';
+    public $selectedSize;
     public $selectedColor;
 
     public function addToCart()
     {
         $this->validate([
-            'selectedSize' => 'nullable|string',
+            'selectedSize' => 'required|string',
             'selectedColor' => 'nullable|string',
         ]);
 

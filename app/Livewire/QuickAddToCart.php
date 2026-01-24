@@ -9,46 +9,80 @@ use Livewire\Attributes\On;
 
 class QuickAddToCart extends Component
 {
+    public $product;
+    public $isOpen = false;
+    public $selectedSize = null;
+    public $selectedColor = null;
+
     #[On('quick-add-to-cart')]
-    public function addToCart($productId)
+    public function openModal($productId)
     {
         if (is_array($productId) && isset($productId['productId'])) {
             $productId = $productId['productId'];
         }
 
-        \Log::info('Quick Add to Cart', ['productId' => $productId]);
-        $product = Product::with('images')->find($productId);
+        $this->product = Product::with('images')->find($productId);
 
-        if (!$product || $product->stock <= 0) {
+        if (!$this->product || $this->product->stock <= 0) {
             $this->dispatch('swal:error', [
                 'title' => 'Sold Out',
-                'text' => 'This piece is no longer available in our collection.',
+                'text' => 'This piece is no longer available.',
                 'icon' => 'error'
             ]);
             return;
         }
 
-        $cart = Session::get('cart', []);
-        $cartKey = $productId;
+        // Auto selection if only one option? Maybe later. For now require manual choice.
+        $this->reset(['selectedSize', 'selectedColor']);
+        $this->isOpen = true;
+    }
 
-        if (isset($cart[$cartKey])) {
-            $cart[$cartKey]['quantity']++;
-        } else {
-            $cart[$cartKey] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->price ?? 0,
-                'image' => $product->image ?? ($product->images->first()?->url ?? asset('images/placeholder.jpg')),
-                'aesthetic' => $product->aesthetic,
-                'size' => null,
-                'color' => null,
-                'quantity' => 1,
-            ];
+    public function close()
+    {
+        $this->isOpen = false;
+        $this->reset(['product', 'selectedSize', 'selectedColor']);
+    }
+
+    public function addToBag()
+    {
+        if (!$this->product)
+            return;
+
+        // Validation
+        $rules = [];
+        if ($this->product->sizes && count($this->product->sizes) > 0) {
+            $rules['selectedSize'] = 'required';
+        }
+        if ($this->product->colors && count($this->product->colors) > 0) {
+            $rules['selectedColor'] = 'required';
         }
 
-        Session::put('cart', $cart);
-        $this->dispatch('cart-updated', productId: $productId);
-        $this->dispatch('open-cart');
+        if (!empty($rules)) {
+            $this->validate($rules, [
+                'selectedSize.required' => 'Please select a size.',
+                'selectedColor.required' => 'Please select a color.'
+            ]);
+        }
+
+        try {
+            $cartService = new \App\Services\CartService();
+            $cartService->add($this->product->id, 1, $this->selectedSize, $this->selectedColor);
+
+            $this->isOpen = false;
+            $this->dispatch('cart-updated');
+            $this->dispatch('open-cart');
+
+            $this->dispatch('swal:success', [
+                'title' => 'Added to Bag',
+                'text' => "{$this->product->name} is now in your bag.",
+                'icon' => 'success'
+            ]);
+
+            $this->reset(['product', 'selectedSize', 'selectedColor']);
+        } catch (\Exception $e) {
+            \Log::error('QuickAddToCart Error: ' . $e->getMessage());
+            $this->dispatch('swal:error', ['title' => 'Error', 'text' => 'Could not update your bag.']);
+        }
     }
 
     public function render()

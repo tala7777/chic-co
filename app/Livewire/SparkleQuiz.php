@@ -4,164 +4,78 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Session;
-use Livewire\Attributes\Layout;
 
-#[Layout('layouts.app')]
 class SparkleQuiz extends Component
 {
     public $step = 1;
     public $answers = [];
-    public $result = null;
 
-    public $questions = [
+    protected $questions = [
         1 => [
-            'question' => "What's your ideal Friday night?",
+            'question' => "First, what's your vibe?",
             'options' => [
-                'soft' => "Cozy in silk PJs, reading a book 🕯️",
-                'alt' => "Underground concert or late-night drive 🎸",
-                'luxury' => "Fine dining at a rooftop lounge 🍸",
-                'mix' => "A little bit of everything! 🎉",
+                ['key' => 'soft', 'label' => 'Soft & Romantic', 'emoji' => '🌸', 'desc' => 'Pastels, florals, and dreamy fabrics.'],
+                ['key' => 'luxury', 'label' => 'Clean & Minimal', 'emoji' => '✨', 'desc' => 'Structured, neutral, and timeless.'],
+                ['key' => 'alt', 'label' => 'Bold & Edgy', 'emoji' => '🖤', 'desc' => 'Dark tones, leather, and statement pieces.'],
+                ['key' => 'mix', 'label' => 'Modern Mix', 'emoji' => '🎭', 'desc' => 'A little bit of everything, tailored to mood.'],
             ]
         ],
         2 => [
-            'question' => "Pick a color palette:",
+            'question' => "What brings you here today?",
             'options' => [
-                'soft' => "Pastels, Blush Pink, Cream 🎀",
-                'alt' => "Black, Dark Red, Silver ⛓️",
-                'luxury' => "Gold, Emerald, Royal Blue 👑",
-                'mix' => "Neutrals with a pop of color 🎨",
+                ['key' => 'casual', 'label' => 'Everyday Chic', 'emoji' => '☕', 'desc' => 'Effortless looks for coffee runs and brunch.'],
+                ['key' => 'work', 'label' => 'Power Dressing', 'emoji' => '💼', 'desc' => 'Commanding attention in the office.'],
+                ['key' => 'party', 'label' => 'Night Out', 'emoji' => '🥂', 'desc' => 'Turning heads at dinner or events.'],
+                ['key' => 'vacation', 'label' => 'Resort Wear', 'emoji' => '🌴', 'desc' => 'Breezy styles for your next escape.'],
             ]
         ],
         3 => [
-            'question' => "What's your go-to accessory?",
+            'question' => "What's your preferred price point?",
             'options' => [
-                'soft' => "A delicate pearl necklace 🦪",
-                'alt' => "Chunky silver rings & chains 💍",
-                'luxury' => "Designer handbag 👜",
-                'mix' => "Statement earrings ✨",
+                ['key' => 'budget', 'label' => 'Smart Steals', 'emoji' => '🏷️', 'desc' => 'Looking for value and style.'],
+                ['key' => 'mid', 'label' => 'Quality Basics', 'emoji' => '💎', 'desc' => 'Investing in pieces that last.'],
+                ['key' => 'premium', 'label' => 'Luxury Investment', 'emoji' => '👑', 'desc' => 'Spare no expense for the perfect fit.'],
             ]
-        ],
-        4 => [
-            'question' => "Choose a footwear style:",
-            'options' => [
-                'soft' => "Ballet flats or cute sandals 🩰",
-                'alt' => "Platform boots or combat boots 👢",
-                'luxury' => "High heels or designer loafers 👠",
-                'mix' => "Classic sneakers or ankle boots 👟",
-            ]
-        ],
-        5 => [
-            'question' => "Describe your vibe in one word:",
-            'options' => [
-                'soft' => "Dreamy ☁️",
-                'alt' => "Edgy ⚡",
-                'luxury' => "Elegant 💎",
-                'mix' => "Versatile 🌟",
-            ]
-        ],
+        ]
     ];
 
-    public function selectOption($aesthetic)
+    public function selectOption($key)
     {
-        $this->answers[$this->step] = $aesthetic;
-
-        if ($this->step < count($this->questions)) {
-            $this->step++;
-        } else {
-            $this->calculateResult();
+        if ($this->step == 1) {
+            $this->answers['aesthetic'] = $key;
+        } elseif ($this->step == 2) {
+            $this->answers['occasion'] = $key;
+        } elseif ($this->step == 3) {
+            $this->answers['price_tier'] = $key;
+            $this->completeQuiz();
+            return;
         }
+
+        $this->step++;
     }
 
-    public function calculateResult()
+    public function completeQuiz()
     {
-        $counts = array_count_values($this->answers);
-        arsort($counts);
-        $this->result = array_key_first($counts);
+        // 1. Determine Persona
+        $persona = $this->answers['aesthetic']; // Main driver
 
-        // Save to session
-        Session::put('user_aesthetic', $this->result);
+        // 2. Save to Session for Algo
+        Session::put('style_profile', [
+            'aesthetic' => $persona,
+            'price_tier' => $this->answers['price_tier'],
+            'occasions' => [$this->answers['occasion']],
+            'quiz_completed_at' => now(),
+        ]);
 
-        // Also update user if logged in
-        if (auth()->check()) {
-            $user = auth()->user();
-            $user->style_persona = $this->result;
-            $user->save();
-
-            // Save for historical analysis
-            \App\Models\StyleQuizResult::create([
-                'user_id' => $user->id,
-                'dominant_aesthetic' => $this->result,
-                'preferences' => $this->answers
-            ]);
-        }
-
-        // Redirect to feed after a short delay or show result first
-        // We'll show the result step
-        $this->step = 'result';
+        // 3. Redirect to Personalized Feed
+        return redirect()->route('personalized.feed', ['aesthetic' => $persona])
+            ->with('message', 'Your style profile is ready! Welcome to your curated edit.');
     }
 
     public function render()
     {
-        return <<<'blade'
-            <div class="container py-5">
-                <div class="row justify-content-center">
-                    <div class="col-md-8 col-lg-6">
-                        @if($step === 'result')
-                            <div class="card border-0 shadow-lg text-center p-5 animate-fade-in">
-                                <div class="mb-4">
-                                    <i class="fa-solid fa-wand-magic-sparkles fa-3x text-primary-custom" style="color: #d4af37;"></i>
-                                </div>
-                                <h2 class="playfair mb-3">Your Aesthetic Is...</h2>
-                                <h1 class="display-4 fw-bold text-uppercase mb-4" style="letter-spacing: 2px;">
-                                    @php
-                                        $aestheticNames = [
-                                            'soft' => 'Soft Femme 🌸',
-                                            'alt' => 'Alt Girly 🖤',
-                                            'luxury' => 'Luxury Clean ✨',
-                                            'mix' => 'Modern Mix 🎭'
-                                        ];
-                                    @endphp
-                                    {{ $aestheticNames[$this->result] ?? 'Aesthetic' }}
-                                </h1>
-                                <p class="text-muted mb-5">
-                                    Our concierge has curated a personalized gallery just for your unique vibe in Amman.
-                                </p>
-                                <a href="{{ route('personalized.feed') }}" class="btn btn-dark btn-lg rounded-pill px-5">
-                                    View Your Collection
-                                </a>
-                            </div>
-                        @else
-                            <div class="card border-0 shadow-sm p-4">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <span class="text-muted small text-uppercase ls-1">Question {{ $step }} of {{ count($questions) }}</span>
-                                    <div class="progress" style="width: 100px; height: 4px;">
-                                        <div class="progress-bar bg-dark" role="progressbar" style="width: {{ ($step / count($questions)) * 100 }}%"></div>
-                                    </div>
-                                </div>
-
-                                <h3 class="playfair text-center mb-5">{{ $questions[$step]['question'] }}</h3>
-
-                                <div class="d-grid gap-3">
-                                    @foreach($questions[$step]['options'] as $key => $option)
-                                        <button wire:click="selectOption('{{ $key }}')" 
-                                                class="btn btn-outline-dark py-3 px-4 text-start d-flex justify-content-between align-items-center hover-scale transition-all">
-                                            <span>{{ $option }}</span>
-                                            <i class="fa-solid fa-chevron-right small opacity-50"></i>
-                                        </button>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-                
-                <style>
-                    .hover-scale:hover { transform: scale(1.02); }
-                    .transition-all { transition: all 0.3s ease; }
-                    .playfair { font-family: 'Playfair Display', serif; }
-                    .ls-1 { letter-spacing: 1px; }
-                </style>
-            </div>
-        blade;
+        return view('livewire.sparkle-quiz', [
+            'currentQuestion' => $this->questions[$this->step]
+        ])->layout('layouts.app', ['title' => 'Style Calibrator']);
     }
 }

@@ -1,13 +1,16 @@
-<div class="container py-5 animate-fade-up">
+<div class="container pt-4 pb-5 animate-fade-up">
     <!-- Breadcrumbs -->
-    <nav aria-label="breadcrumb" class="mb-5 px-3">
-        <ol class="breadcrumb">
+    <nav aria-label="breadcrumb" class="mb-5">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="/"
                     class="text-decoration-none text-muted extra-small text-uppercase ls-1">Home</a></li>
-            <li class="breadcrumb-item active extra-small text-uppercase ls-1" aria-current="page">The Collection</li>
+            <li class="breadcrumb-item extra-small text-uppercase ls-1 text-muted" aria-current="page">The Collection
+            </li>
             @if($aesthetic)
-                <li class="breadcrumb-item active text-dark fw-bold extra-small text-uppercase ls-1" aria-current="page">
-                    {{ $aesthetic }}</li>
+                <li class="breadcrumb-item active fw-bold extra-small text-uppercase ls-1"
+                    style="color: var(--color-primary-blush);" aria-current="page">
+                    {{ $aesthetic }}
+                </li>
             @endif
         </ol>
     </nav>
@@ -17,7 +20,7 @@
         <p class="text-muted text-uppercase ls-2 small">Curated excellence for your unique persona</p>
         <div class="d-inline-flex align-items-center gap-2 mt-3">
             <span
-                class="badge bg-primary-subtle text-primary border-0 rounded-pill px-4 py-2 text-uppercase extra-small ls-1 fw-bold">{{ $products->total() }}
+                class="badge bg-primary-subtle text-primary border-0 rounded-pill px-4 py-2 text-uppercase extra-small ls-1 fw-bold">{{ $products->count() }}
                 Exclusive Pieces</span>
         </div>
     </div>
@@ -104,7 +107,7 @@
 
             <div class="row g-4 px-2">
                 @forelse ($products as $product)
-                    <div class="col-6 col-md-4" wire:key="product-{{ $product->id }}">
+                    <div class="col-6 col-lg-6" wire:key="product-{{ $product->id }}">
                         <x-product-card :product="$product" :badgeType="$product->aesthetic"
                             :badgeText="strtoupper($product->aesthetic)" />
                     </div>

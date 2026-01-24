@@ -26,11 +26,17 @@ class CartService
         $visitorId = $this->getVisitorId();
         $userId = auth()->id();
 
-        $item = CartItem::where('session_id', $visitorId)
-            ->where('product_id', $productId)
+        $query = CartItem::where('product_id', $productId)
             ->where('size', $size)
-            ->where('color', $color)
-            ->first();
+            ->where('color', $color);
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        } else {
+            $query->where('session_id', $visitorId);
+        }
+
+        $item = $query->first();
 
         if ($item) {
             $item->increment('quantity', $quantity);
@@ -52,10 +58,17 @@ class CartService
     public function getItems()
     {
         $visitorId = $this->getVisitorId();
+        $userId = auth()->id();
 
-        return CartItem::with('product')
-            ->where('session_id', $visitorId)
-            ->get();
+        $query = CartItem::with('product');
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        } else {
+            $query->where('session_id', $visitorId);
+        }
+
+        return $query->get();
     }
 
     /**
@@ -85,7 +98,7 @@ class CartService
     public function getSubtotal()
     {
         return $this->getItems()->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            return ($item->product->price ?? 0) * $item->quantity;
         });
     }
 
@@ -108,6 +121,36 @@ class CartService
      */
     public function clear()
     {
-        CartItem::where('session_id', $this->getVisitorId())->delete();
+        $visitorId = $this->getVisitorId();
+        $userId = auth()->id();
+
+        $query = CartItem::query();
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        } else {
+            $query->where('session_id', $visitorId);
+        }
+
+        $query->delete();
+    }
+
+    /**
+     * Get total quantity of items in bag.
+     */
+    public function getCount()
+    {
+        $visitorId = $this->getVisitorId();
+        $userId = auth()->id();
+
+        $query = CartItem::query();
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        } else {
+            $query->where('session_id', $visitorId);
+        }
+
+        return $query->sum('quantity');
     }
 }

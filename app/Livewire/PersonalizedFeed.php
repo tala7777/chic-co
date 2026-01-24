@@ -24,10 +24,17 @@ class PersonalizedFeed extends Component
     public function mount()
     {
         $this->view = request('view', 'feed');
-        if (auth()->check()) {
-            $this->aesthetic = auth()->user()->style_persona ?? Session::get('user_aesthetic', 'mix');
+        $this->aesthetic = request('aesthetic');
+
+        if (!$this->aesthetic) {
+            if (auth()->check()) {
+                $this->aesthetic = auth()->user()->style_persona ?? Session::get('user_aesthetic', 'mix');
+            } else {
+                $this->aesthetic = Session::get('user_aesthetic', 'mix');
+            }
         } else {
-            $this->aesthetic = Session::get('user_aesthetic', 'mix');
+            // Save it to session for future visits
+            Session::put('user_aesthetic', $this->aesthetic);
         }
     }
 

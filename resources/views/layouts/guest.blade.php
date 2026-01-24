@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
         rel="stylesheet">
 
     <!-- Bootstrap 5 -->
@@ -26,11 +26,22 @@
 
     <style>
         :root {
-            --color-primary-blush: #F6A6B2;
-            --color-ink-black: #1E1E1E;
-            --color-warm-ivory: #FDFBFA;
+            /* Refined "Blush Luxe Noir" Palette */
+            --color-primary-blush: #E87A90;
+            --color-secondary-mauve: #C68CA0;
+            --color-ink-black: #1A1A1A;
+            --color-charcoal: #2F2F2F;
+            --color-warm-gold: #D4AF37;
+            --color-ivory: #FDFAF5;
+            --color-cloud: #F8F5F2;
+            --color-sage: #DCE8E6;
+
+            /* Legacy mapping compatibility */
+            --color-dusty-rose: var(--color-secondary-mauve);
+            --color-warm-ivory: var(--color-ivory);
+
             --font-heading: 'Playfair Display', serif;
-            --font-body: 'Inter', sans-serif;
+            --font-body: 'Lato', sans-serif;
         }
 
         body {
@@ -201,8 +212,10 @@
             <div class="form-container">
                 <div class="d-lg-none text-center mb-5">
                     <a href="/" class="text-decoration-none text-dark">
-                        <h2 style="font-family: 'Cinzel', serif; letter-spacing: 2px; font-weight: 700;"><i
-                                class="fa-solid fa-gem me-2" style="font-size: 1.5rem;"></i>CHIC & CO.</h2>
+                        <h2 class="mb-0"
+                            style="font-family: var(--font-heading); letter-spacing: 2px; font-weight: 700;">
+                            <i class="fa-solid fa-gem me-2" style="font-size: 1.5rem;"></i>CHIC & CO.
+                        </h2>
                     </a>
                 </div>
 

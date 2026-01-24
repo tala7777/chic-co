@@ -19,20 +19,23 @@
                     <div class="row g-3">
                         <div class="col-sm-6">
                             <label class="form-label small text-uppercase fw-bold ls-1">First Name</label>
-                            <input type="text" class="form-control rounded-pill px-3 @error('firstName') is-invalid @enderror" wire:model.live.debounce.500ms="firstName"
-                                placeholder="Tala">
+                            <input type="text"
+                                class="form-control rounded-pill px-3 @error('firstName') is-invalid @enderror"
+                                wire:model.live.debounce.500ms="firstName" placeholder="Tala">
                             @error('firstName') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
                         <div class="col-sm-6">
                             <label class="form-label small text-uppercase fw-bold ls-1">Last Name</label>
-                            <input type="text" class="form-control rounded-pill px-3 @error('lastName') is-invalid @enderror" wire:model.live.debounce.500ms="lastName"
-                                placeholder="Shkokani">
+                            <input type="text"
+                                class="form-control rounded-pill px-3 @error('lastName') is-invalid @enderror"
+                                wire:model.live.debounce.500ms="lastName" placeholder="Shkokani">
                             @error('lastName') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
                         <div class="col-12">
                             <label class="form-label small text-uppercase fw-bold ls-1">Email Address</label>
-                            <input type="email" class="form-control rounded-pill px-3 @error('email') is-invalid @enderror" wire:model.live.debounce.500ms="email"
-                                placeholder="tala@example.com">
+                            <input type="email"
+                                class="form-control rounded-pill px-3 @error('email') is-invalid @enderror"
+                                wire:model.live.debounce.500ms="email" placeholder="tala@example.com">
                             @error('email') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
                     </div>
@@ -83,7 +86,8 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label small text-uppercase fw-bold ls-1">Area / Neighborhood</label>
-                                    <select class="form-select rounded-pill px-3 @error('area') is-invalid @enderror" wire:model.live.debounce.500ms="area">
+                                    <select class="form-select rounded-pill px-3 @error('area') is-invalid @enderror"
+                                        wire:model.live.debounce.500ms="area">
                                         <option value="">Select Neighborhood...</option>
                                         <option>Dabouq</option>
                                         <option>Abdoun</option>
@@ -96,23 +100,28 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small text-uppercase fw-bold ls-1">Phone Number</label>
-                                    <input type="text" class="form-control rounded-pill px-3 @error('phone') is-invalid @enderror" wire:model.live.debounce.500ms="phone"
-                                        placeholder="079 XXXXXXX">
+                                    <input type="text"
+                                        class="form-control rounded-pill px-3 @error('phone') is-invalid @enderror"
+                                        wire:model.live.debounce.500ms="phone" placeholder="079 XXXXXXX">
                                     @error('phone') <span class="text-danger small">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small text-uppercase fw-bold ls-1">Street Address</label>
-                                    <input type="text" class="form-control rounded-pill px-3 @error('streetAddress') is-invalid @enderror" wire:model.live.debounce.500ms="streetAddress"
+                                    <input type="text"
+                                        class="form-control rounded-pill px-3 @error('streetAddress') is-invalid @enderror"
+                                        wire:model.live.debounce.500ms="streetAddress"
                                         placeholder="Building name, street...">
                                     @error('streetAddress') <span class="text-danger small">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small text-uppercase fw-bold ls-1">Building No.</label>
-                                    <input type="text" class="form-control rounded-pill px-3" wire:model.live.debounce.500ms="buildingNo">
+                                    <input type="text" class="form-control rounded-pill px-3"
+                                        wire:model.live.debounce.500ms="buildingNo">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small text-uppercase fw-bold ls-1">Apartment No.</label>
-                                    <input type="text" class="form-control rounded-pill px-3" wire:model.live.debounce.500ms="apartmentNo">
+                                    <input type="text" class="form-control rounded-pill px-3"
+                                        wire:model.live.debounce.500ms="apartmentNo">
                                 </div>
                             </div>
                         </div>
@@ -179,14 +188,18 @@
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <label class="form-label small text-uppercase fw-bold ls-1">Cardholder Name</label>
-                                            <input type="text" class="form-control rounded-pill px-3 @error('cardName') is-invalid @enderror" wire:model.live.debounce.500ms="cardName">
+                                            <input type="text"
+                                                class="form-control rounded-pill px-3 @error('cardName') is-invalid @enderror"
+                                                wire:model.live.debounce.500ms="cardName">
                                             @error('cardName') <span class="text-danger small">{{ $message }}</span> @enderror
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label small text-uppercase fw-bold ls-1">Card Number</label>
                                             <div class="position-relative">
-                                                <input type="text" class="form-control rounded-pill px-3 @error('cardNumber') is-invalid @enderror"
-                                                    wire:model.live.debounce.500ms="cardNumber" placeholder="0000 0000 0000 0000">
+                                                <input type="text"
+                                                    class="form-control rounded-pill px-3 @error('cardNumber') is-invalid @enderror"
+                                                    wire:model.live.debounce.500ms="cardNumber"
+                                                    placeholder="0000 0000 0000 0000">
                                                 <i
                                                     class="fa-solid fa-lock position-absolute end-0 top-50 translate-middle-y me-3 opacity-25"></i>
                                             </div>
@@ -194,14 +207,16 @@
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label small text-uppercase fw-bold ls-1">Expiry (MM/YY)</label>
-                                            <input type="text" class="form-control rounded-pill px-3 @error('cardExpiry') is-invalid @enderror" wire:model.live.debounce.500ms="cardExpiry"
-                                                placeholder="MM / YY">
+                                            <input type="text"
+                                                class="form-control rounded-pill px-3 @error('cardExpiry') is-invalid @enderror"
+                                                wire:model.live.debounce.500ms="cardExpiry" placeholder="MM / YY">
                                             @error('cardExpiry') <span class="text-danger small">{{ $message }}</span> @enderror
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label small text-uppercase fw-bold ls-1">CVV</label>
-                                            <input type="text" class="form-control rounded-pill px-3 @error('cardCvc') is-invalid @enderror" wire:model.live.debounce.500ms="cardCvc"
-                                                placeholder="•••">
+                                            <input type="text"
+                                                class="form-control rounded-pill px-3 @error('cardCvc') is-invalid @enderror"
+                                                wire:model.live.debounce.500ms="cardCvc" placeholder="•••">
                                             @error('cardCvc') <span class="text-danger small">{{ $message }}</span> @enderror
                                         </div>
                                     </div>
@@ -232,7 +247,7 @@
             <div class="summary-sidebar sticky-top" style="top: 100px;">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                     <div class="card-header bg-dark text-white p-4 border-0">
-                        <h5 class="mb-0 font-heading text-uppercase ls-1">Your Order</h5>
+                        <h5 class="mb-0 font-heading text-uppercase ls-1" style="color: white;">Your Order</h5>
                     </div>
                     <div class="card-body p-4">
                         <ul class="list-unstyled mb-4">

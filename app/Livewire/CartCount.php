@@ -15,9 +15,7 @@ class CartCount extends Component
     public function updateCount()
     {
         $cartService = new CartService();
-        $visitorId = $cartService->getVisitorId();
-
-        $this->count = CartItem::where('session_id', $visitorId)->sum('quantity');
+        $this->count = $cartService->getCount();
         \Log::info('CartCount updated. Count: ' . $this->count);
     }
 

@@ -8,6 +8,7 @@ use App\Services\CartService;
 
 class FeaturedProducts extends Component
 {
+    public $type = 'featured'; // featured, recent, top
     public function addToCart($productId)
     {
         try {
@@ -26,21 +27,25 @@ class FeaturedProducts extends Component
 
     public function render()
     {
-        // Get 4 featured products OR random products if none featured
-        $products = Product::where('is_featured', true)
-            ->where('status', 'active')
-            ->where('stock', '>', 0)
-            ->limit(4)
-            ->get();
+        $query = Product::where('status', 'active')->where('stock', '>', 0);
 
-        if ($products->count() < 4) {
-            $extra = Product::where('status', 'active')
-                ->where('stock', '>', 0)
-                ->whereNotIn('id', $products->pluck('id'))
-                ->inRandomOrder()
-                ->limit(4 - $products->count())
-                ->get();
-            $products = $products->concat($extra);
+        if ($this->type === 'top') {
+            // Logic for top products (e.g., most sales or high rating)
+            // Using random or specific logic for now
+            $products = $query->inRandomOrder()->limit(4)->get();
+        } elseif ($this->type === 'recent') {
+            $products = $query->latest()->limit(4)->get();
+        } else {
+            // Default to featured
+            $products = (clone $query)->where('is_featured', true)->limit(4)->get();
+
+            if ($products->count() < 4) {
+                $extra = $query->whereNotIn('id', $products->pluck('id'))
+                    ->inRandomOrder()
+                    ->limit(4 - $products->count())
+                    ->get();
+                $products = $products->concat($extra);
+            }
         }
 
         return view('livewire.featured-products', [

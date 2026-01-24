@@ -68,6 +68,10 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.index');
     })->name('dashboard');
 
+    Route::get('/profile', function () {
+        return redirect()->route('account.profile.edit');
+    })->name('profile');
+
     Route::prefix('account')->name('account.')->group(function () {
         Route::get('/orders', UserOrders::class)->name('orders');
         Route::get('/wishlist', UserWishlist::class)->name('wishlist');

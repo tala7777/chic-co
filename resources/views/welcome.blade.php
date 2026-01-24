@@ -1,82 +1,103 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- Hero Section -->
-    <section class="position-relative overflow-hidden d-flex align-items-center bg-soft-gradient"
-        style="height: calc(100vh - 80px);">
-
-        <!-- Animated Background Elements -->
-        <div class="position-absolute top-0 end-0 p-5 mt-5 animate-fade-up d-none d-lg-block">
-            <div class="rounded-circle"
-                style="width: 500px; height: 500px; background: var(--color-primary-blush); opacity: 0.1; filter: blur(100px);">
-            </div>
+    <!-- Hero Section: The Aspirational Aura -->
+    <section class="position-relative vh-100 w-100 d-flex align-items-center justify-content-center overflow-hidden bg-white">
+        
+        <!-- Background Image (Luxury Lifestyle) -->
+        <div class="position-absolute top-0 start-0 w-100 h-100 effect-zoom-slow">
+            <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=75&w=1600&auto=format&fit=crop" 
+                 alt="Luxury Lifestyle" 
+                 class="w-100 h-100 object-fit-cover"
+                 style="opacity: 1;">
         </div>
+        
+        <!-- Subtle Overlay for Readability -->
+        <div class="position-absolute top-0 start-0 w-100 h-100" 
+             style="background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);"></div>
 
-        <div class="container position-relative z-1">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-5 mb-lg-0 text-center text-lg-start">
-                    <span class="badge bg-primary-subtle text-primary rounded-pill text-uppercase px-4 py-2 mb-4 animate-fade-up border-0 extra-small ls-2 fw-bold">
-                        The Luxury Dashboard • Amman, Jordan
-                    </span>
-                    <h1 class="display-1 mb-4 animate-fade-up font-heading fw-bold" style="line-height: 1.05;">
-                        Redefining<br>
-                        Digital <span style="font-style: italic; color: var(--color-primary-blush);">Elegance</span>
-                    </h1>
-                    <p class="lead text-muted mb-5 animate-fade-up pe-lg-5 fs-4">
-                        Experience Amman's first addictive luxury playground where every curation is matched to your aesthetic DNA.
+        <!-- Content -->
+        <div class="container position-relative z-2 text-center px-4 mt-5">
+            
+            <h1 class="display-1 fw-bold mb-4 animate-fade-up font-heading" 
+                style="font-size: clamp(3.5rem, 8vw, 6.5rem); line-height: 1; color: #1E1E1E; letter-spacing: -2px;">
+                Unlock Your<br>
+                <span class="fst-italic pe-2" style="color: #E87A90; font-family: 'Playfair Display', serif;">Signature Aura</span>
+            </h1>
+
+            <div class="d-flex justify-content-center animate-fade-up">
+                <div class="backdrop-blur bg-white bg-opacity-70 rounded-pill px-5 py-3 shadow-sm border border-white border-opacity-50" style="max-width: 750px;">
+                    <p class="lead mb-0 text-dark fw-medium" 
+                       style="font-size: 1.25rem; font-family: 'Lato', sans-serif; line-height: 1.5; color: #333 !important;">
+                        Discover curated pieces that transform your world—where every thread weaves your personal luxury story.
                     </p>
-                    <div class="d-flex flex-column flex-sm-row gap-4 justify-content-center justify-content-lg-start animate-fade-up">
-                        <a href="{{ route('sparkle.quiz') }}" class="btn btn-premium btn-lg px-5 fs-5 py-4">
-                            Calibrate Style ✨
-                        </a>
-                        <a href="{{ route('shop.index') }}" class="btn btn-premium-outline btn-lg px-5 fs-5 py-4">
-                            View Collections
-                        </a>
-                    </div>
                 </div>
-                <div class="col-lg-6 position-relative animate-fade-up">
-                    <div class="position-relative ms-lg-5">
-                        <!-- Main Image -->
-                        <div class="rounded-5 overflow-hidden shadow-lg"
-                             style="border: 12px solid white; transform: rotate(1deg);">
-                            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop"
-                                alt="Luxury Fashion" class="img-fluid w-100">
-                        </div>
-                        <!-- Floating Detail Image -->
-                        <div class="position-absolute bottom-0 start-0 d-none d-md-block shadow-lg rounded-5 overflow-hidden scale-hover transition-premium"
-                            style="width: 240px; border: 8px solid white; transform: translate(-25%, 25%) rotate(-6deg);">
-                            <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=400&auto=format&fit=crop"
-                                alt="Detail" class="img-fluid">
-                        </div>
-                    </div>
-                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row gap-4 justify-content-center align-items-center animate-fade-up mt-5" style="animation-delay: 0.2s;">
+                <a href="{{ route('sparkle.quiz') }}" 
+                   class="btn btn-dark btn-lg px-5 py-3 rounded-pill fs-6 fw-bold shadow-lg hover-scale text-uppercase ls-2 d-flex align-items-center gap-2"
+                   style="background-color: #1E1E1E; border: none; min-width: 260px; justify-content: center;">
+                   <span>DISCOVER YOUR AURA</span>
+                   <i class="fa-solid fa-wand-magic-sparkles text-warning ms-1"></i>
+                </a>
+                
+                <a href="{{ route('shop.index') }}" 
+                   class="btn btn-outline-dark btn-lg px-5 py-3 rounded-pill fs-6 fw-bold text-uppercase ls-2 hover-bg-dark hover-text-white"
+                   style="border: 1px solid #1E1E1E; min-width: 260px;">
+                    SHOP THE DREAM
+                </a>
             </div>
         </div>
-
-        <!-- Scroll Indicator -->
-        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-5 d-none d-md-block opacity-25">
-            <div class="d-flex flex-column align-items-center">
-                <span class="extra-small text-uppercase mb-3 ls-2 fw-bold">Descent</span>
-                <div class="bg-dark" style="width: 1px; height: 60px;"></div>
-            </div>
+        
+        <!-- Scroll Prompt -->
+         <div class="position-absolute bottom-0 start-50 translate-middle-x mb-5 animate-bounce opacity-50">
+            <i class="fa-solid fa-chevron-down text-dark fs-4"></i>
         </div>
     </section>
 
-    <!-- Aesthetic Selection -->
-    <section class="container py-5 mt-lg-n5 position-relative z-2">
-        <div class="card card-premium p-4 border shadow-sm">
-            <div class="row g-4 align-items-center text-center">
+    <style>
+        .effect-zoom-slow img {
+            animation: slowZoom 40s infinite alternate;
+        }
+        
+        .backdrop-blur {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        @keyframes slowZoom {
+            from { transform: scale(1); }
+            to { transform: scale(1.15); }
+        }
+    </style>
+
+    <!-- Curated Experience: Personas -->
+    <section class="py-5" style="background-color: var(--color-cloud);">
+        <div class="container py-5">
+            <div class="text-center mb-5 animate-fade-up">
+                 <h2 class="display-4 font-heading fw-bold mb-3">Your Aesthetic Journey</h2>
+                 <p class="text-muted fs-5" style="max-width: 700px; margin: 0 auto;">Discover pieces matched to your style DNA via our exclusive curator algorithms.</p>
+            </div>
+
+            <div class="row g-4">
                 @foreach([
-                    'soft' => ['label' => 'Soft Femme', 'emoji' => '🌸', 'sub' => 'Dabouq Elegance', 'bg' => 'rgba(246, 166, 178, 0.08)'],
-                    'alt' => ['label' => 'Alt Girly', 'emoji' => '🖤', 'sub' => 'Abdoun Chic', 'bg' => 'rgba(30,30,30,0.05)'],
-                    'luxury' => ['label' => 'Luxury Clean', 'emoji' => '✨', 'sub' => 'Al-Rabieh Minimalism', 'bg' => 'rgba(212, 175, 55, 0.05)'],
-                    'mix' => ['label' => 'Modern Mix', 'emoji' => '🎭', 'sub' => 'Swafeih Cosmopolitan', 'bg' => 'rgba(23,162,184,0.05)']
+                    'soft' => ['label' => 'Soft Femme', 'emoji' => '🌸', 'sub' => 'Dabouq Elegance', 'bg' => '#FFF0F3'],
+                    'alt' => ['label' => 'Alt Girly', 'emoji' => '🖤', 'sub' => 'Abdoun Chic', 'bg' => '#F8F9FA'],
+                    'luxury' => ['label' => 'Luxury Clean', 'emoji' => '✨', 'sub' => 'Al-Rabieh Minimalism', 'bg' => '#FDFAED'],
+                    'mix' => ['label' => 'Modern Mix', 'emoji' => '🎭', 'sub' => 'Swafeih Cosmopolitan', 'bg' => '#F0F9FF']
                 ] as $key => $data)
-                <div class="col-lg-3 col-md-6">
-                    <a href="{{ url('/shop?aesthetic='.$key) }}" class="text-decoration-none group d-block p-4 rounded-5 transition-premium" 
-                       style="background: {{ $data['bg'] }};">
-                        <h6 class="mb-1 text-dark font-heading fw-bold fs-5">{{ $data['label'] }} <span class="ms-1">{{ $data['emoji'] }}</span></h6>
-                        <span class="text-muted extra-small text-uppercase ls-1 fw-bold">{{ $data['sub'] }}</span>
+                <div class="col-lg-3 col-md-6 animate-fade-up">
+                    <a href="{{ route('personalized.feed', ['aesthetic' => $key]) }}" class="text-decoration-none d-block h-100">
+                        <div class="product-card h-100 bg-white rounded-4 shadow-sm p-4 text-center hover-translate-up transition-premium">
+                            <div class="rounded-3 overflow-hidden mb-4 bg-light position-relative" style="height: 200px; background: {{ $data['bg'] }} !important;">
+                                <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center display-1">
+                                    {{ $data['emoji'] }}
+                                </div>
+                            </div>
+                            <h3 class="h5 font-heading fw-bold mb-1 text-dark">{{ $data['label'] }}</h3>
+                            <p class="small text-muted mb-0">{{ $data['sub'] }}</p>
+                        </div>
                     </a>
                 </div>
                 @endforeach
@@ -84,66 +105,50 @@
         </div>
     </section>
 
-    <!-- Featured -->
-    <section class="container py-5 mt-5">
-        <div class="text-center mb-5">
-            <span class="text-muted extra-small text-uppercase ls-2 fw-bold mb-3 d-block">The Selection</span>
-            <h2 class="display-4 font-heading fw-bold">Curated For Amman</h2>
+    <!-- Newest Arrivals -->
+    <section class="py-5 bg-white">
+        <div class="container py-5">
+            <div class="d-flex justify-content-between align-items-end mb-5 animate-fade-up">
+                <div>
+                    <span class="text-muted extra-small text-uppercase ls-2 fw-bold mb-2 d-block">The Latest Edit</span>
+                    <h2 class="display-4 font-heading fw-bold">New Arrivals</h2>
+                </div>
+                <a href="{{ route('shop.index', ['sort' => 'latest']) }}" class="btn btn-link text-decoration-none text-dark fw-bold text-uppercase ls-1 pb-1 border-bottom border-dark">View Entire Archive</a>
+            </div>
+            <livewire:featured-products type="recent" />
         </div>
-        <livewire:featured-products />
     </section>
 
-    <!-- Velvet Room -->
-    <section class="container py-5 mb-5">
-        <div class="card card-premium overflow-hidden position-relative shadow-lg border-0" style="height: 450px;">
-            <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop"
-                alt="Boutique" class="w-100 h-100 object-fit-cover" style="filter: brightness(0.5) contrast(1.1);">
-            <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-75 animate-fade-up">
-                <span class="extra-small text-uppercase ls-2 fw-bold mb-3 d-block opacity-75">Private Access</span>
-                <h2 class="display-3 mb-4 font-heading fw-bold">The Velvet Room</h2>
-                <p class="lead mb-5 opacity-75 fs-5">A digital sanctuary tailored to your aesthetic DNA.</p>
-                <a href="#" onclick="handleEnterSession(event)" class="btn btn-light btn-lg px-5 py-4 rounded-pill fw-bold text-uppercase ls-1">
-                    Enter Session <i class="fa-solid fa-arrow-right ms-2 fs-6"></i>
-                </a>
+    <!-- The Velvet Room: Redefined -->
+    <section class="py-5" style="background-color: var(--color-cloud);">
+        <div class="container py-5">
+            <div class="card card-premium overflow-hidden position-relative shadow-2xl border-0" style="height: 600px; border-radius: 60px;">
+                <img src="https://i.pinimg.com/1200x/b3/fc/cc/b3fccc45db34ed2f0da1adee80b32d08.jpg"
+                    alt="Luxury Experience" class="w-100 h-100 object-fit-cover" style="filter: brightness(0.6) contrast(1.2);">
+                
+                <!-- Contrast Overlay -->
+                <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%);"></div>
+
+                <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-75 animate-fade-up" style="z-index: 2;">
+                    <span class="extra-small text-uppercase ls-3 mb-4 d-block opacity-100" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: 300;">Social Sanctuary</span>
+                    <h2 class="display-2 mb-4 font-heading" style="color: #ffffff; letter-spacing: 4px; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); font-weight: 300;">THE VELVET ROOM</h2>
+                    <p class="lead mb-5 opacity-100 fs-5 mx-auto" style="max-width: 750px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 300; letter-spacing: 0.5px;">Step into a private sanctuary designed for the modern connoisseur. Experience curation like never before.</p>
+                    <a href="{{ route('personalized.feed', ['view' => 'lookbook']) }}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill text-uppercase ls-2 shadow-lg hover-scale" style="border-width: 1px; font-weight: 400; background: rgba(255,255,255,0.05); backdrop-filter: blur(5px);">
+                        ENTER THE LOOKBOOK <i class="fa-solid fa-arrow-right ms-3"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
 
-    <script>
-        function handleEnterSession(e) {
-            e.preventDefault();
-            @auth
-                window.location.href = "{{ route('enter.session') }}";
-            @else
-                Swal.fire({
-                    title: 'The Velvet Room Awaits',
-                    text: 'Authorized access is required to enter the tailored session.',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Sign In',
-                    cancelButtonText: 'Join the List',
-                    confirmButtonColor: '#1E1E1E',
-                    cancelButtonColor: '#F6A6B2',
-                    customClass: {
-                        popup: 'rounded-5 p-4',
-                        title: 'font-heading fw-bold'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{ route('login', ['context' => 'quiz']) }}";
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        Swal.fire({
-                            title: 'The Discovery Process',
-                            text: 'We first need to understand your aesthetic DNA. You will be matched via our digital quiz.',
-                            confirmButtonText: 'Start Quiz',
-                            confirmButtonColor: '#1E1E1E',
-                            customClass: { popup: 'rounded-5 p-4' }
-                        }).then(() => {
-                            window.location.href = "{{ route('sparkle.quiz') }}";
-                        });
-                    }
-                });
-            @endauth
-        }
-    </script>
+    <!-- Best Sellers -->
+    <section class="py-5 bg-white mb-5">
+        <div class="container py-5">
+            <div class="text-center mb-5 animate-fade-up">
+                <span class="text-muted extra-small text-uppercase ls-2 fw-bold mb-2 d-block">Elite Choices</span>
+                <h2 class="display-4 font-heading fw-bold">Best Sellers</h2>
+            </div>
+            <livewire:featured-products type="top" />
+        </div>
+    </section>
 @endsection

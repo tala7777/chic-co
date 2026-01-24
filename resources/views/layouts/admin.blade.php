@@ -7,10 +7,11 @@
     <title>{{ $title ?? 'Admin Dashboard' }} | Chic & Co.</title>
 
     <!-- Google Fonts -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
         rel="stylesheet">
 
 
@@ -29,16 +30,27 @@
 
     <style>
         :root {
-            --color-primary-blush: #F6A6B2;
-            --color-dusty-rose: #E48B9A;
-            --color-ink-black: #1E1E1E;
-            --color-warm-ivory: #FDFBFA;
+            /* Refined "Blush Luxe Noir" Palette */
+            --color-primary-blush: #E87A90;
+            --color-secondary-mauve: #C68CA0;
+            --color-ink-black: #1A1A1A;
+            --color-charcoal: #2F2F2F;
+            --color-warm-gold: #D4AF37;
+            --color-ivory: #FDFAF5;
+            --color-cloud: #F8F5F2;
+            --color-sage: #DCE8E6;
+
+            /* Legacy mapping compatibility */
+            --color-dusty-rose: var(--color-secondary-mauve);
+            --color-warm-ivory: var(--color-ivory);
+
             --font-heading: 'Playfair Display', serif;
+            --font-body: 'Lato', sans-serif;
         }
 
         body {
-            background-color: #FDFBFA;
-            font-family: 'Inter', sans-serif;
+            background-color: var(--color-warm-ivory);
+            font-family: var(--font-body);
             color: var(--color-ink-black);
             overflow-x: hidden;
         }
@@ -275,7 +287,7 @@
 <body>
     <div class="sidebar animate-fade-in">
         <a href="{{ url('/') }}" class="brand-logo">
-            <i class="fa-solid fa-gem me-2" style="font-size: 1.2rem;"></i>CHIC & CO.
+            <i class="fa-solid fa-gem me-2"></i>CHIC & CO.
         </a>
 
         <div class="nav-section-label">MAIN MENU</div>

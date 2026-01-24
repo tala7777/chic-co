@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
         rel="stylesheet">
 
     <!-- Bootstrap 5 -->
@@ -28,13 +28,34 @@
     <style>
         :root {
             --nav-height: 80px;
-            --color-primary-blush: #F6A6B2;
-            --color-dusty-rose: #E48B9A;
-            --color-ink-black: #1E1E1E;
-            --color-warm-ivory: #FDFBFA;
+
+            /* Refined "Blush Luxe Noir" Palette */
+            --color-primary-blush: #E87A90;
+            /* Richer, warm blush */
+            --color-secondary-mauve: #C68CA0;
+            /* Soft accent */
+            --color-ink-black: #1A1A1A;
+            /* Deep neutral */
+            --color-charcoal: #2F2F2F;
+            /* Dark accent */
+            --color-warm-gold: #D4AF37;
+            /* Luxury metallic */
+            --color-ivory: #FDFAF5;
+            /* Warm neutral base */
+            --color-cloud: #F8F5F2;
+            /* Light section base */
+            --color-sage: #DCE8E6;
+            /* Subtle accent */
+
+            /* Legacy mapping compatibility */
+            --color-dusty-rose: var(--color-secondary-mauve);
+            --color-warm-ivory: var(--color-ivory);
+
+            /* Typography */
             --font-heading: 'Playfair Display', serif;
-            --font-body: 'Inter', sans-serif;
-            --shadow-premium: 0 10px 40px rgba(0, 0, 0, 0.04);
+            --font-body: 'Lato', sans-serif;
+
+            --shadow-premium: 0 10px 40px rgba(26, 26, 26, 0.06);
             --transition-premium: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
@@ -44,221 +65,136 @@
             background-color: var(--color-warm-ivory);
             cursor: default;
             overflow-x: hidden !important;
+            line-height: 1.7;
+            font-size: 1.05rem;
         }
 
-        /* Typography */
+        /* Breadcrumb Alignment Fix */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .breadcrumb-item {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.75rem;
+            line-height: 1;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .breadcrumb-item+.breadcrumb-item::before {
+            content: "•";
+            padding: 0 0.5rem;
+            color: #ccc;
+            font-size: 0.6em;
+            line-height: 1;
+        }
+
+        .breadcrumb-item a {
+            text-decoration: none;
+            color: gray;
+            transition: color 0.2s;
+            display: inline-block;
+        }
+
+        .breadcrumb-item a:hover {
+            color: black;
+        }
+
+        .breadcrumb-item.active {
+            color: black;
+            font-weight: 600;
+        }
+
+        /* Typography Helper Classes */
+        .font-heading {
+            font-family: var(--font-heading) !important;
+        }
+
         h1,
         h2,
         h3,
         h4,
         h5,
         h6,
-        .font-heading {
-            font-family: var(--font-heading);
-            font-weight: 700;
-            color: var(--color-ink-black);
-        }
-
-        p,
-        span,
-        label,
-        div {
-            cursor: default;
-        }
-
-        .ls-1 {
-            letter-spacing: 1px;
-        }
-
-        .ls-2 {
-            letter-spacing: 2px;
-        }
-
-        /* Buttons */
-        .btn-premium {
-            background-color: var(--color-ink-black);
-            color: white !important;
-            border-radius: 100px;
-            font-weight: 600;
-            padding: 14px 32px !important;
-            border: none;
-            transition: var(--transition-premium);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-
-        .btn-premium:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-            background-color: #333;
-            color: white !important;
-        }
-
-        .btn-premium-outline {
-            background: transparent;
-            color: var(--color-ink-black) !important;
-            border: 1px solid var(--color-ink-black);
-            border-radius: 100px;
-            font-weight: 600;
-            padding: 14px 32px !important;
-            transition: var(--transition-premium);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-
-        .btn-premium-outline:hover {
-            background: var(--color-ink-black);
-            color: white !important;
-            transform: translateY(-2px);
-        }
-
-        .btn-soft {
-            background: var(--color-primary-blush);
-            color: white !important;
-            border-radius: 100px;
-            font-weight: 600;
-            padding: 12px 28px !important;
-            border: none;
-            transition: var(--transition-premium);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-
-        .btn-soft:hover {
-            background: var(--color-dusty-rose);
-            box-shadow: 0 10px 25px rgba(246, 166, 178, 0.3);
-            transform: translateY(-2px);
-            color: white !important;
-        }
-
-        /* Forms */
-        .form-control,
-        .form-select {
-            border-radius: 100px !important;
-            padding: 14px 24px !important;
-            border: 1px solid rgba(0, 0, 0, 0.08) !important;
-            background-color: #f8f9fa !important;
-            font-size: 0.95rem !important;
-            transition: var(--transition-premium) !important;
-        }
-
-        .form-control:focus,
-        .form-select:focus {
-            background-color: white !important;
-            border-color: var(--color-primary-blush) !important;
-            box-shadow: 0 0 0 4px rgba(246, 166, 178, 0.1) !important;
-            outline: none !important;
-        }
-
-        /* Cards */
-        .card-premium {
-            background: white;
-            border: none;
-            border-radius: 32px;
-            box-shadow: var(--shadow-premium);
-            transition: var(--transition-premium);
-            overflow: hidden;
-        }
-
-        .card-premium:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Navbar Refinement */
-        .navbar {
-            height: var(--nav-height);
-            background: rgba(255, 255, 255, 0.8) !important;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .navbar.scrolled {
-            background: rgba(255, 255, 255, 0.95) !important;
-            height: calc(var(--nav-height) - 15px);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
-        }
-
         .navbar-brand {
             font-family: var(--font-heading);
             font-weight: 700;
-            font-size: 1.5rem;
-            letter-spacing: 1px;
-            transition: var(--transition-premium);
+            color: var(--color-ink-black);
+            letter-spacing: 0.5px;
+        }
+
+        .navbar {
+            height: var(--nav-height);
+            padding: 0;
+            background: rgba(255, 255, 255, 0.95) !important;
+            /* Higher opacity for solid band feel */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+            width: 100%;
+            /* Ensure full width */
+        }
+
+        .navbar .container {
+            max-width: 100%;
+            /* Allow full width content */
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--color-ink-black) !important;
         }
 
         .nav-link {
+            font-weight: 400;
             text-transform: uppercase;
-            font-size: 0.72rem !important;
-            font-weight: 600 !important;
-            letter-spacing: 1.8px !important;
-            padding: 0.5rem 1.5rem !important;
-            opacity: 0.7;
-            transition: var(--transition-premium);
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
             color: var(--color-ink-black) !important;
+            padding: 0.5rem 1.2rem !important;
             position: relative;
+            transition: color 0.3s ease;
         }
 
-        .nav-link::after {
+        .nav-link:after {
             content: '';
             position: absolute;
             bottom: 0;
             left: 50%;
             width: 0;
-            height: 2px;
-            background: var(--color-primary-blush);
-            transition: var(--transition-premium);
+            height: 1px;
+            background: var(--color-ink-black);
+            transition: all 0.3s ease;
             transform: translateX(-50%);
         }
 
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 20px;
+        .nav-link:hover:after,
+        .nav-link.active:after {
+            width: 30%;
         }
 
-        .nav-link:hover,
         .nav-link.active {
-            opacity: 1;
-            color: var(--color-ink-black) !important;
-        }
-
-        .bg-primary-subtle {
-            background-color: rgba(246, 166, 178, 0.1) !important;
-            border: 1px solid rgba(246, 166, 178, 0.2);
-            box-shadow: 0 0 15px rgba(246, 166, 178, 0.1);
-        }
-
-        @keyframes pulse-glow {
-            0% {
-                box-shadow: 0 0 5px rgba(246, 166, 178, 0.2);
-            }
-
-            50% {
-                box-shadow: 0 0 15px rgba(246, 166, 178, 0.5);
-            }
-
-            100% {
-                box-shadow: 0 0 5px rgba(246, 166, 178, 0.2);
-            }
-        }
-
-        .nav-link.bg-primary-subtle {
-            animation: pulse-glow 3s infinite;
+            font-weight: 600;
         }
 
         .search-container {
             position: relative;
             width: 200px;
-            transition: var(--transition-premium);
+            transition: width 0.3s ease;
         }
 
         .search-input {
@@ -268,12 +204,12 @@
             padding: 8px 15px 8px 35px;
             font-size: 0.8rem;
             width: 100%;
-            transition: var(--transition-premium);
+            transition: all 0.3s ease;
         }
 
         .search-input:focus {
             background: white;
-            border-color: rgba(246, 166, 178, 0.3);
+            border-color: rgba(0, 0, 0, 0.1);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             width: 240px;
             outline: none;
@@ -310,54 +246,155 @@
             font-weight: bold;
         }
 
-        /* Animations */
-        .animate-fade-up {
-            animation: fadeUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        .btn-primary-custom {
+            background-color: var(--color-ink-black);
+            color: white !important;
+            border-radius: 100px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            padding: 10px 25px !important;
+            transition: all 0.3s ease;
         }
 
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background-color: #333;
         }
 
-        /* Selection cursors */
-        input,
-        textarea,
-        [contenteditable="true"] {
-            cursor: text !important;
+        main {
+            padding-top: calc(var(--nav-height) + 10px);
+            min-height: 80vh;
         }
 
-        a,
-        button,
-        .btn,
-        .cursor-pointer,
-        [role="button"],
-        select {
-            cursor: pointer !important;
+        /* Product Cards & Aesthetics */
+        .product-card {
+            border: none;
+            background: transparent;
+            transition: all 0.3s ease;
         }
 
+        .img-shadow-overlay {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .img-shadow-overlay::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.05));
+            pointer-events: none;
+        }
+
+        .quick-actions {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 20;
+            padding: 0 15px;
+        }
+
+        .btn-quick {
+            background: white;
+            color: var(--color-ink-black);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-quick:hover {
+            background: var(--color-ink-black);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .aesthetic-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .aesthetic-soft {
+            background: #FDE2E4;
+            color: #AD2E41;
+        }
+
+        .aesthetic-alt {
+            background: #E5E5E5;
+            color: #1A1A1A;
+        }
+
+        .aesthetic-luxury {
+            background: #FEFAE0;
+            color: #B9975B;
+        }
+
+        .aesthetic-mix {
+            background: #E0F2F1;
+            color: #00796B;
+        }
+
+        .ls-1 {
+            letter-spacing: 1px;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .w-20 {
+            width: 20px;
+            text-align: center;
+        }
+
+        .hover-opacity-100:hover {
+            opacity: 1 !important;
+        }
+
+        /* Update Utility Group */
         .utility-icon {
             font-size: 1.1rem;
             color: var(--color-ink-black);
-            transition: var(--transition-premium);
+            transition: all 0.2s ease;
             position: relative;
         }
 
         .utility-icon:hover {
             transform: scale(1.1);
-            color: var(--color-primary-blush);
-        }
-
-        main {
-            padding-top: calc(var(--nav-height) + 40px);
-            min-height: 80vh;
+            color: #000;
         }
     </style>
 </head>
@@ -394,109 +431,136 @@
             </div>
         </footer>
     </div><livewire:cart-sidebar /><livewire:quick-add-to-cart />
-    < !-- SweetAlert2 -->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>window.addEventListener('swal:success', event => {
-                const data = event.detail[0];
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const softSwal = {
+            confirmButtonColor: 'var(--color-ink-black)',
+            cancelButtonColor: 'var(--color-secondary-mauve)',
+            background: '#ffffff',
+            color: 'var(--color-ink-black)',
+            customClass: {
+                popup: 'rounded-5 shadow-lg p-4 border-0',
+                title: 'font-heading fw-bold fs-3',
+                confirmButton: 'btn btn-primary-custom rounded-pill px-4 py-2 border-0',
+                cancelButton: 'btn btn-outline-secondary rounded-pill px-4 py-2 border-0'
+            },
+            buttonsStyling: false
+        };
 
-                Swal.fire({
-                    title: data.title,
-                    text: data.text,
-                    icon: data.icon,
-                    confirmButtonColor: '#000',
-                    borderRadius: '15px'
-                });
+        window.addEventListener('swal:success', event => {
+            const data = event.detail[0];
+            Swal.fire({
+                ...softSwal,
+                title: data.title,
+                text: data.text,
+                icon: 'success',
+                iconColor: 'var(--color-primary-blush)'
             });
+        });
 
-            window.addEventListener('open-cart', event => {
-                const sidebar = document.getElementById('cartSidebar');
+        window.addEventListener('swal:error', event => {
+            const data = event.detail[0];
+            Swal.fire({
+                ...softSwal,
+                title: data.title,
+                text: data.text,
+                icon: 'error',
+                iconColor: 'var(--color-ink-black)'
+            });
+        });
 
-                if (sidebar) {
-                    const bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(sidebar);
-                    bsOffcanvas.show();
+        window.addEventListener('open-cart', event => {
+            const sidebar = document.getElementById('cartSidebar');
+            if (sidebar) {
+                const bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(sidebar);
+                bsOffcanvas.show();
+            }
+        });
+
+        function triggerReviewModal(productName) {
+            Swal.fire({
+                ...softSwal,
+                title: 'Review ' + productName,
+                html: `
+                    <div class="mb-3 text-start">
+                        <label class="small text-muted mb-2 d-block text-uppercase ls-1">Your Rating</label>
+                        <div class="d-flex gap-2 mb-4 fs-3 justify-content-center" id="star-rating">
+                            <i class="fa-regular fa-star cursor-pointer transition-premium hover-scale" onclick="setRating(1)"></i>
+                            <i class="fa-regular fa-star cursor-pointer transition-premium hover-scale" onclick="setRating(2)"></i>
+                            <i class="fa-regular fa-star cursor-pointer transition-premium hover-scale" onclick="setRating(3)"></i>
+                            <i class="fa-regular fa-star cursor-pointer transition-premium hover-scale" onclick="setRating(4)"></i>
+                            <i class="fa-regular fa-star cursor-pointer transition-premium hover-scale" onclick="setRating(5)"></i>
+                        </div>
+                        <textarea class="form-control bg-light border-0 rounded-4 p-3" rows="3" placeholder="Share your experience..."></textarea>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Submit Review',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        ...softSwal,
+                        title: 'Thank You!',
+                        text: 'Your review has been shared with the community.',
+                        icon: 'success'
+                    });
                 }
             });
+        }
 
-            function triggerReviewModal(productName) {
-                Swal.fire({
-
-                    title: 'Review ' + productName,
-                    html: ` <div class="mb-3 text-start" > <label class="small text-muted mb-2 d-block" >Your Aesthetic Experience</label> <div class="d-flex gap-2 mb-3 fs-3" id="star-rating" > <i class="fa-regular fa-star cursor-pointer" onclick="setRating(1)" ></i> <i class="fa-regular fa-star cursor-pointer" onclick="setRating(2)" ></i> <i class="fa-regular fa-star cursor-pointer" onclick="setRating(3)" ></i> <i class="fa-regular fa-star cursor-pointer" onclick="setRating(4)" ></i> <i class="fa-regular fa-star cursor-pointer" onclick="setRating(5)" ></i> </div> <textarea class="form-control border-0 bg-light rounded-4 p-3" rows="3" placeholder="Describe your experience with this piece..." ></textarea> </div> `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Submit Review',
-                    confirmButtonColor: '#000',
-                    cancelButtonText: 'Cancel',
-                    customClass: {
-                        popup: 'rounded-5'
-                    }
-
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Thank You!',
-                            text: 'Your review has been shared with the community.',
-                            icon: 'success',
-                            confirmButtonColor: '#000'
-                        });
-                    }
-                });
-            }
-
-            function setRating(val) {
-                const stars = document.querySelectorAll('#star-rating i');
-
-                stars.forEach((star, index) => {
-                    if (index < val) {
-                        star.classList.replace('fa-regular', 'fa-solid');
-                        star.classList.add('text-warning');
-                    }
-
-                    else {
-                        star.classList.replace('fa-solid', 'fa-regular');
-                        star.classList.remove('text-warning');
-                    }
-                });
-            }
-
-        </script>
-        <script> // Global Backdrop & Scroll Lock Reaper
-            // Ensures the page never gets stuck in a "dark/disabled" state
-            document.addEventListener('livewire:navigated', cleanupUIState);
-            document.addEventListener('hidden.bs.offcanvas', cleanupUIState);
-            document.addEventListener('hidden.bs.modal', cleanupUIState);
-
-            function cleanupUIState() {
-
-                // Give a tiny timeout for animations to finish
-                setTimeout(() => {
-                    const activeOffcanvas = document.querySelector('.offcanvas.show');
-                    const activeModal = document.querySelector('.modal.show');
-
-                    // If nothing is supposedly open, purge all leftovers
-                    if (!activeOffcanvas && !activeModal) {
-                        // Remove all backdrops
-                        document.querySelectorAll('.offcanvas-backdrop, .modal-backdrop').forEach(el => el.remove());
-                        // Restore body styles
-                        document.body.style.overflow = '';
-                        document.body.style.paddingRight = '';
-                        document.body.classList.remove('modal-open', 'offcanvas-open', 'overflow-hidden');
-                    }
-                }
-
-                    , 350);
-            }
-
-        </script>
-        <script>
-            window.addEventListener('scroll', function () {
-                const navbar = document.querySelector('.navbar');
-                if (window.scrollY > 50) {
-                    navbar.classList.add('scrolled');
+        function setRating(val) {
+            const stars = document.querySelectorAll('#star-rating i');
+            stars.forEach((star, index) => {
+                if (index < val) {
+                    star.classList.replace('fa-regular', 'fa-solid');
+                    star.classList.add('text-warning');
                 } else {
-                    navbar.classList.remove('scrolled');
+                    star.classList.replace('fa-solid', 'fa-regular');
+                    star.classList.remove('text-warning');
                 }
             });
-        </script>
+        }
+    </script>
+    <script> // Global Backdrop & Scroll Lock Reaper
+        // Ensures the page never gets stuck in a "dark/disabled" state
+        document.addEventListener('livewire:navigated', cleanupUIState);
+        document.addEventListener('hidden.bs.offcanvas', cleanupUIState);
+        document.addEventListener('hidden.bs.modal', cleanupUIState);
+
+        function cleanupUIState() {
+
+            // Give a tiny timeout for animations to finish
+            setTimeout(() => {
+                const activeOffcanvas = document.querySelector('.offcanvas.show');
+                const activeModal = document.querySelector('.modal.show');
+
+                // If nothing is supposedly open, purge all leftovers
+                if (!activeOffcanvas && !activeModal) {
+                    // Remove all backdrops
+                    document.querySelectorAll('.offcanvas-backdrop, .modal-backdrop').forEach(el => el.remove());
+                    // Restore body styles
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                    document.body.classList.remove('modal-open', 'offcanvas-open', 'overflow-hidden');
+                }
+            }
+
+                , 350);
+        }
+
+    </script>
+    <script>
+        window.addEventListener('scroll', function () {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
 </body>
 
 </html>

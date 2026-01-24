@@ -235,7 +235,7 @@
                                                                 <td class="text-center">
                                                                     <span
                                                                         class="badge rounded-pill px-2 py-1 extra-small border 
-                                                                                                                                    {{ $order->status === 'delivered' ? 'bg-success-subtle text-success border-success-subtle' :
+                                                                                                                                                                                            {{ $order->status === 'delivered' ? 'bg-success-subtle text-success border-success-subtle' :
                                     ($order->status === 'pending' ? 'bg-warning-subtle text-warning border-warning-subtle' : 'bg-light text-dark') }}">
                                                                         {{ ucfirst($order->status) }}
                                                                     </span>
