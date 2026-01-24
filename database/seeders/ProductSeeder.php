@@ -12,23 +12,28 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $tops = Category::where('slug', 'tops')->first();
+        if (!$tops) {
+            $tops = Category::create(['name' => 'Tops', 'slug' => 'tops']);
+        }
 
-        $p1 = Product::create([
-            'name' => 'Classic Silk Blouse',
-            'slug' => 'classic-silk-blouse',
-            'sku' => 'TS-001',
-            'price' => 85.00,
-            'description' => 'A timeless silk blouse for any occasion.',
-            'category_id' => $tops->id,
-            'stock' => 100,
-            'status' => 'active',
-            'is_featured' => true,
-        ]);
+        // Manual product
+        $p1 = Product::firstOrCreate(
+            ['slug' => 'classic-silk-blouse'],
+            [
+                'name' => 'Classic Silk Blouse',
+                'sku' => 'TS-001',
+                'price' => 85.00,
+                'description' => 'A timeless silk blouse for any occasion.',
+                'category_id' => $tops->id,
+                'stock' => 100,
+                'status' => 'active',
+                'is_featured' => true,
+                'aesthetic' => 'soft',
+                'image' => 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop'
+            ]
+        );
 
-        // Create variants for P1
-        $p1->variants()->createMany([
-            ['sku' => 'TS-001-S-BK', 'stock_quantity' => 10],
-            ['sku' => 'TS-001-M-BK', 'stock_quantity' => 20],
-        ]);
+        // Factory products
+        Product::factory()->count(50)->create();
     }
 }

@@ -1,42 +1,70 @@
 @extends('layouts.app')
 
-@section('title', 'Shop')
+@section('title', 'Shop - ' . $title)
 
 @section('content')
     <div class="container py-5">
+        <!-- Breadcrumbs -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Shop</li>
+                @if($aesthetic)
+                    <li class="breadcrumb-item active" aria-current="page">{{ ucfirst($aesthetic) }}</li>
+                @endif
+                @if($priceTier)
+                    <li class="breadcrumb-item active" aria-current="page">{{ ucfirst($priceTier) }}</li>
+                @endif
+            </ol>
+        </nav>
+
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-2" style="font-family: 'Playfair Display', serif;">{{ $title }}</h1>
+            <p class="text-muted">Curated excellence for your unique persona</p>
+            <p class="small text-muted">{{ $products->total() }} items available</p>
+        </div>
+
         <div class="row">
             <!-- Sidebar Filters -->
             <div class="col-lg-3 mb-4">
                 <div class="bg-white p-4 rounded-4 shadow-sm">
-                    <h5 class="mb-4">Filters</h5>
+                    <h5 class="mb-4">Discovery Filters</h5>
 
                     <div class="mb-4">
-                        <h6 class="fw-bold mb-2">Categories</h6>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="cat1">
-                            <label class="form-check-label" for="cat1">Clothing</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="cat2">
-                            <label class="form-check-label" for="cat2">Accessories</label>
+                        <label class="small fw-bold text-uppercase ls-1 mb-3 d-block">Aesthetic Universe</label>
+                        <div class="d-flex flex-column gap-2">
+                            <a href="{{ request()->fullUrlWithQuery(['aesthetic' => null]) }}"
+                                class="btn btn-sm {{ !$aesthetic ? 'btn-dark' : 'btn-outline-dark' }} rounded-pill text-start px-3">All
+                                Aesthetics</a>
+                            <a href="{{ request()->fullUrlWithQuery(['aesthetic' => 'soft']) }}"
+                                class="btn btn-sm {{ $aesthetic == 'soft' ? 'btn-dark' : 'btn-outline-dark' }} rounded-pill text-start px-3">🌸
+                                Soft Femme</a>
+                            <a href="{{ request()->fullUrlWithQuery(['aesthetic' => 'alt']) }}"
+                                class="btn btn-sm {{ $aesthetic == 'alt' ? 'btn-dark' : 'btn-outline-dark' }} rounded-pill text-start px-3">🖤
+                                Alt Girly</a>
+                            <a href="{{ request()->fullUrlWithQuery(['aesthetic' => 'luxury']) }}"
+                                class="btn btn-sm {{ $aesthetic == 'luxury' ? 'btn-dark' : 'btn-outline-dark' }} rounded-pill text-start px-3">✨
+                                Luxury Clean</a>
+                            <a href="{{ request()->fullUrlWithQuery(['aesthetic' => 'mix']) }}"
+                                class="btn btn-sm {{ $aesthetic == 'mix' ? 'btn-dark' : 'btn-outline-dark' }} rounded-pill text-start px-3">🎭
+                                Modern Mix</a>
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <h6 class="fw-bold mb-2">Style Tag</h6>
-                        <div class="d-flex flex-wrap gap-2">
-                            <span class="badge badge-soft cursor-pointer">Soft</span>
-                            <span class="badge badge-alt cursor-pointer">Alt</span>
-                            <span class="badge badge-luxury cursor-pointer">Luxury</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-2">Price Range</h6>
-                        <input type="range" class="form-range" min="0" max="500">
-                        <div class="d-flex justify-content-between small text-muted">
-                            <span>0 JOD</span>
-                            <span>500 JOD</span>
+                        <label class="small fw-bold text-uppercase ls-1 mb-3 d-block">Price Consciousness</label>
+                        <div class="d-flex flex-column gap-2">
+                            <a href="{{ request()->fullUrlWithQuery(['price_tier' => 'accessible']) }}"
+                                class="btn btn-sm {{ $priceTier == 'accessible' ? 'btn-dark' : 'btn-outline-dark' }} rounded-pill text-start px-3">Daily
+                                Luxury</a>
+                            <a href="{{ request()->fullUrlWithQuery(['price_tier' => 'aspirational']) }}"
+                                class="btn btn-sm {{ $priceTier == 'aspirational' ? 'btn-dark' : 'btn-outline-dark' }} rounded-pill text-start px-3">Aspirational</a>
+                            <a href="{{ request()->fullUrlWithQuery(['price_tier' => 'luxury']) }}"
+                                class="btn btn-sm {{ $priceTier == 'luxury' ? 'btn-dark' : 'btn-outline-dark' }} rounded-pill text-start px-3">Investment</a>
+                            @if($priceTier)
+                                <a href="{{ request()->fullUrlWithQuery(['price_tier' => null]) }}"
+                                    class="btn btn-link btn-sm text-muted text-decoration-none">Clear Price Filter</a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -45,44 +73,45 @@
             <!-- Product Grid -->
             <div class="col-lg-9">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="text-muted">Showing 9 of 24 products</span>
-                    <select class="form-select w-auto border-0 bg-transparent fw-bold" style="box-shadow: none;">
-                        <option>Sort by: Recommended</option>
-                        <option>Price: Low to High</option>
-                        <option>Newest</option>
-                    </select>
+                    <div>
+                        <span class="text-muted small">Showing {{ $products->count() }} beautiful pieces</span>
+                        @if($search)
+                            <span class="text-muted small ms-2">for "{{ $search }}"</span>
+                        @endif
+                    </div>
+                    <form action="{{ request()->fullUrlWithQuery([]) }}" method="GET" id="sortForm">
+                        @foreach(request()->except(['sort', 'page']) as $key => $value)
+                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                        @endforeach
+                        <select name="sort" class="form-select form-select-sm border-0 bg-transparent fw-bold"
+                            style="box-shadow: none; cursor: pointer;" onchange="this.form.submit()">
+                            <option value="latest" {{ $sort == 'latest' ? 'selected' : '' }}>Sort by: Latest Arrivals</option>
+                            <option value="price_asc" {{ $sort == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                            <option value="price_desc" {{ $sort == 'price_desc' ? 'selected' : '' }}>Price: High to Low
+                            </option>
+                        </select>
+                    </form>
                 </div>
 
                 <div class="row g-4">
-                    <!-- Repeat Product Card x6 -->
-                    @for ($i = 1; $i <= 6; $i++)
+                    @forelse ($products as $product)
                         <div class="col-6 col-md-4">
-                            <div class="card card-custom h-100">
-                                <div class="position-relative">
-                                    <img src="https://source.unsplash.com/random/400x500?fashion,{{ $i }}" class="card-img-top"
-                                        alt="Product">
-                                    <button class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3"
-                                        style="width: 32px; height: 32px; padding: 0;"><i
-                                            class="fa-regular fa-heart"></i></button>
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="h6">Elegant Piece {{ $i }}</h5>
-                                    <p class="small text-muted mb-2">Soft • Evening</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="fw-bold">{{ rand(30, 150) }} JOD</span>
-                                        <button @click="addToCart('Elegant Piece {{ $i }}')"
-                                            class="btn btn-sm btn-outline-dark rounded-circle"><i
-                                                class="fa-solid fa-plus"></i></button>
-                                    </div>
-                                </div>
-                            </div>
+                            <x-product-card :product="$product" :badgeType="$product->aesthetic"
+                                :badgeText="ucfirst($product->aesthetic)" />
                         </div>
-                    @endfor
+                    @empty
+                        <div class="col-12 text-center py-5">
+                            <h3 class="text-muted">No pieces found in this universe yet.</h3>
+                            <a href="{{ url('/shop') }}" class="btn btn-dark mt-3 rounded-pill">View All Pieces</a>
+                        </div>
+                    @endforelse
                 </div>
 
-                <div class="text-center mt-5">
-                    <button class="btn btn-outline-dark rounded-pill px-5">Load More</button>
-                </div>
+                @if($products->count() > 0)
+                    <div class="mt-5">
+                        {{ $products->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>

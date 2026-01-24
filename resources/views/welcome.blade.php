@@ -2,156 +2,148 @@
 
 @section('content')
     <!-- Hero Section -->
-    <section class="position-relative overflow-hidden py-5"
-        style="background: linear-gradient(180deg, rgba(246,166,178,0.1) 0%, rgba(250,247,244,1) 100%);">
-        <div class="container py-5">
+    <section class="position-relative overflow-hidden d-flex align-items-center bg-soft-gradient"
+        style="height: calc(100vh - 80px);">
+
+        <!-- Animated Background Elements -->
+        <div class="position-absolute top-0 end-0 p-5 mt-5 animate-fade-up d-none d-lg-block">
+            <div class="rounded-circle"
+                style="width: 500px; height: 500px; background: var(--color-primary-blush); opacity: 0.1; filter: blur(100px);">
+            </div>
+        </div>
+
+        <div class="container position-relative z-1">
             <div class="row align-items-center">
-                <div class="col-lg-6 mb-5 mb-lg-0">
-                    <h1 class="display-3 mb-4" style="line-height: 1.2;">Curated pieces for <br>
-                        <span style="color: var(--color-primary-blush);">Soft Girls</span>,
-                        <span class="text-dark">Alt Girls</span>, <br>
-                        and <span class="text-gold">Ammani Energy</span>
+                <div class="col-lg-6 mb-5 mb-lg-0 text-center text-lg-start">
+                    <span class="badge bg-primary-subtle text-primary rounded-pill text-uppercase px-4 py-2 mb-4 animate-fade-up border-0 extra-small ls-2 fw-bold">
+                        The Luxury Dashboard • Amman, Jordan
+                    </span>
+                    <h1 class="display-1 mb-4 animate-fade-up font-heading fw-bold" style="line-height: 1.05;">
+                        Redefining<br>
+                        Digital <span style="font-style: italic; color: var(--color-primary-blush);">Elegance</span>
                     </h1>
-                    <p class="lead text-muted mb-4">Discover your unique style persona with our curated collections. From
-                        rose gold dreams to edgy noir staples.</p>
-                    <div class="d-flex gap-3">
-                        <a href="{{ url('/quiz') }}" class="btn btn-primary-custom btn-lg">Find My Style</a>
-                        <a href="{{ url('/shop') }}" class="btn btn-secondary-custom btn-lg">Browse Collection</a>
+                    <p class="lead text-muted mb-5 animate-fade-up pe-lg-5 fs-4">
+                        Experience Amman's first addictive luxury playground where every curation is matched to your aesthetic DNA.
+                    </p>
+                    <div class="d-flex flex-column flex-sm-row gap-4 justify-content-center justify-content-lg-start animate-fade-up">
+                        <a href="{{ route('sparkle.quiz') }}" class="btn btn-premium btn-lg px-5 fs-5 py-4">
+                            Calibrate Style ✨
+                        </a>
+                        <a href="{{ route('shop.index') }}" class="btn btn-premium-outline btn-lg px-5 fs-5 py-4">
+                            View Collections
+                        </a>
                     </div>
                 </div>
-                <div class="col-lg-6 position-relative">
-                    <!-- Abstract Hero Image Composition -->
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                                alt="Fashion Model" class="img-fluid rounded-4 shadow-sm"
-                                style="transform: translateY(20px);">
+                <div class="col-lg-6 position-relative animate-fade-up">
+                    <div class="position-relative ms-lg-5">
+                        <!-- Main Image -->
+                        <div class="rounded-5 overflow-hidden shadow-lg"
+                             style="border: 12px solid white; transform: rotate(1deg);">
+                            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop"
+                                alt="Luxury Fashion" class="img-fluid w-100">
                         </div>
-                        <div class="col-6">
-                            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                                alt="Fashion Detail" class="img-fluid rounded-4 shadow-sm">
+                        <!-- Floating Detail Image -->
+                        <div class="position-absolute bottom-0 start-0 d-none d-md-block shadow-lg rounded-5 overflow-hidden scale-hover transition-premium"
+                            style="width: 240px; border: 8px solid white; transform: translate(-25%, 25%) rotate(-6deg);">
+                            <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=400&auto=format&fit=crop"
+                                alt="Detail" class="img-fluid">
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-5 d-none d-md-block opacity-25">
+            <div class="d-flex flex-column align-items-center">
+                <span class="extra-small text-uppercase mb-3 ls-2 fw-bold">Descent</span>
+                <div class="bg-dark" style="width: 1px; height: 60px;"></div>
             </div>
         </div>
     </section>
 
-    <!-- Style Picker (Quick Chips) -->
-    <section class="container py-5">
-        <div class="d-flex flex-wrap justify-content-center gap-3">
-            <a href="#" class="btn btn-light rounded-pill px-4 py-2 border shadow-sm">Soft <span class="ms-1">🌸</span></a>
-            <a href="#" class="btn btn-dark rounded-pill px-4 py-2 shadow-sm">Alt <span class="ms-1">🖤</span></a>
-            <a href="#" class="btn btn-light rounded-pill px-4 py-2 border shadow-sm">Clean <span class="ms-1">🤍</span></a>
-            <a href="#" class="btn rounded-pill px-4 py-2 border shadow-sm"
-                style="background-color: #FFF3CD; color: #856404; border-color: #ffeeba !important;">Luxury <span
-                    class="ms-1">✨</span></a>
-        </div>
-    </section>
-
-    <!-- Featured Section -->
-    <section class="container py-5">
-        <div class="d-flex justify-content-between align-items-end mb-4">
-            <h2 class="mb-0">Featured For You</h2>
-            <a href="{{ url('/shop') }}" class="text-decoration-none text-gold fw-bold">View All <i
-                    class="fa-solid fa-arrow-right ms-1"></i></a>
-        </div>
-
-        <div class="row g-4">
-            <!-- Mock Product 1 -->
-            <div class="col-6 col-md-3">
-                <div class="card card-custom h-100 position-relative">
-                    <span class="badge badge-luxury position-absolute top-0 start-0 m-3">Luxury</span>
-                    <img src="https://images.unsplash.com/photo-1559192823-e1d8e87def53?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                        class="card-img-top" alt="Dress">
-                    <button class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3"
-                        style="width: 32px; height: 32px; padding: 0;"><i class="fa-regular fa-heart"></i></button>
-                    <div class="card-body">
-                        <h5 class="card-title h6">Rose Gold Abaya</h5>
-                        <p class="card-text text-muted small">Soft • Evening</p>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="fw-bold">149 JOD</span>
-                            <a href="{{ url('/shop/1') }}" class="btn btn-sm btn-outline-dark rounded-circle"><i
-                                    class="fa-solid fa-plus"></i></a>
-                        </div>
-                    </div>
+    <!-- Aesthetic Selection -->
+    <section class="container py-5 mt-lg-n5 position-relative z-2">
+        <div class="card card-premium p-4 border shadow-sm">
+            <div class="row g-4 align-items-center text-center">
+                @foreach([
+                    'soft' => ['label' => 'Soft Femme', 'emoji' => '🌸', 'sub' => 'Dabouq Elegance', 'bg' => 'rgba(246, 166, 178, 0.08)'],
+                    'alt' => ['label' => 'Alt Girly', 'emoji' => '🖤', 'sub' => 'Abdoun Chic', 'bg' => 'rgba(30,30,30,0.05)'],
+                    'luxury' => ['label' => 'Luxury Clean', 'emoji' => '✨', 'sub' => 'Al-Rabieh Minimalism', 'bg' => 'rgba(212, 175, 55, 0.05)'],
+                    'mix' => ['label' => 'Modern Mix', 'emoji' => '🎭', 'sub' => 'Swafeih Cosmopolitan', 'bg' => 'rgba(23,162,184,0.05)']
+                ] as $key => $data)
+                <div class="col-lg-3 col-md-6">
+                    <a href="{{ url('/shop?aesthetic='.$key) }}" class="text-decoration-none group d-block p-4 rounded-5 transition-premium" 
+                       style="background: {{ $data['bg'] }};">
+                        <h6 class="mb-1 text-dark font-heading fw-bold fs-5">{{ $data['label'] }} <span class="ms-1">{{ $data['emoji'] }}</span></h6>
+                        <span class="text-muted extra-small text-uppercase ls-1 fw-bold">{{ $data['sub'] }}</span>
+                    </a>
                 </div>
-            </div>
-
-            <!-- Mock Product 2 -->
-            <div class="col-6 col-md-3">
-                <div class="card card-custom h-100 position-relative">
-                    <span class="badge badge-alt position-absolute top-0 start-0 m-3">Alt</span>
-                    <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                        class="card-img-top" alt="Jacket">
-                    <button class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3"
-                        style="width: 32px; height: 32px; padding: 0;"><i class="fa-regular fa-heart"></i></button>
-                    <div class="card-body">
-                        <h5 class="card-title h6">Edgy Black Blazer</h5>
-                        <p class="card-text text-muted small">Alt • Chic</p>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="fw-bold">89 JOD</span>
-                            <a href="#" class="btn btn-sm btn-outline-dark rounded-circle"><i
-                                    class="fa-solid fa-plus"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mock Product 3 -->
-            <div class="col-6 col-md-3">
-                <div class="card card-custom h-100 position-relative">
-                    <span class="badge badge-soft position-absolute top-0 start-0 m-3">Soft</span>
-                    <img src="https://images.unsplash.com/photo-1612336307429-8a898d10e223?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                        class="card-img-top" alt="Dress">
-                    <button class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3"
-                        style="width: 32px; height: 32px; padding: 0;"><i class="fa-regular fa-heart"></i></button>
-                    <div class="card-body">
-                        <h5 class="card-title h6">Blush Satin Dress</h5>
-                        <p class="card-text text-muted small">Soft • Elegant</p>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="fw-bold">120 JOD</span>
-                            <a href="#" class="btn btn-sm btn-outline-dark rounded-circle"><i
-                                    class="fa-solid fa-plus"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mock Product 4 -->
-            <div class="col-6 col-md-3">
-                <div class="card card-custom h-100 position-relative">
-                    <span class="badge badge-luxury position-absolute top-0 start-0 m-3">Classic</span>
-                    <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                        class="card-img-top" alt="Bag">
-                    <button class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3"
-                        style="width: 32px; height: 32px; padding: 0;"><i class="fa-regular fa-heart"></i></button>
-                    <div class="card-body">
-                        <h5 class="card-title h6">Studded Mini Bag</h5>
-                        <p class="card-text text-muted small">Luxury • Access...</p>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="fw-bold">45 JOD</span>
-                            <a href="#" class="btn btn-sm btn-outline-dark rounded-circle"><i
-                                    class="fa-solid fa-plus"></i></a>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </section>
 
-    <!-- Limited Drop Banner -->
-    <section class="container py-4">
-        <div class="rounded-4 p-5 text-white position-relative overflow-hidden"
-            style="background-color: var(--color-ink-black);">
-            <div class="position-absolute top-0 start-0 w-100 h-100"
-                style="background: url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover; opacity: 0.4;">
-            </div>
-            <div class="position-relative z-1 text-center">
-                <h2 class="display-5" style="font-family: 'Playfair Display', serif;">Limited Drop: Golden Hour</h2>
-                <p class="lead mb-4">Only 2 days left to grab the exclusive evening collection.</p>
-                <a href="{{ url('/shop') }}" class="btn btn-primary-custom px-5">Shop Now</a>
+    <!-- Featured -->
+    <section class="container py-5 mt-5">
+        <div class="text-center mb-5">
+            <span class="text-muted extra-small text-uppercase ls-2 fw-bold mb-3 d-block">The Selection</span>
+            <h2 class="display-4 font-heading fw-bold">Curated For Amman</h2>
+        </div>
+        <livewire:featured-products />
+    </section>
+
+    <!-- Velvet Room -->
+    <section class="container py-5 mb-5">
+        <div class="card card-premium overflow-hidden position-relative shadow-lg border-0" style="height: 450px;">
+            <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop"
+                alt="Boutique" class="w-100 h-100 object-fit-cover" style="filter: brightness(0.5) contrast(1.1);">
+            <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-75 animate-fade-up">
+                <span class="extra-small text-uppercase ls-2 fw-bold mb-3 d-block opacity-75">Private Access</span>
+                <h2 class="display-3 mb-4 font-heading fw-bold">The Velvet Room</h2>
+                <p class="lead mb-5 opacity-75 fs-5">A digital sanctuary tailored to your aesthetic DNA.</p>
+                <a href="#" onclick="handleEnterSession(event)" class="btn btn-light btn-lg px-5 py-4 rounded-pill fw-bold text-uppercase ls-1">
+                    Enter Session <i class="fa-solid fa-arrow-right ms-2 fs-6"></i>
+                </a>
             </div>
         </div>
     </section>
+
+    <script>
+        function handleEnterSession(e) {
+            e.preventDefault();
+            @auth
+                window.location.href = "{{ route('enter.session') }}";
+            @else
+                Swal.fire({
+                    title: 'The Velvet Room Awaits',
+                    text: 'Authorized access is required to enter the tailored session.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sign In',
+                    cancelButtonText: 'Join the List',
+                    confirmButtonColor: '#1E1E1E',
+                    cancelButtonColor: '#F6A6B2',
+                    customClass: {
+                        popup: 'rounded-5 p-4',
+                        title: 'font-heading fw-bold'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('login', ['context' => 'quiz']) }}";
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: 'The Discovery Process',
+                            text: 'We first need to understand your aesthetic DNA. You will be matched via our digital quiz.',
+                            confirmButtonText: 'Start Quiz',
+                            confirmButtonColor: '#1E1E1E',
+                            customClass: { popup: 'rounded-5 p-4' }
+                        }).then(() => {
+                            window.location.href = "{{ route('sparkle.quiz') }}";
+                        });
+                    }
+                });
+            @endauth
+        }
+    </script>
 @endsection

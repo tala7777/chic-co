@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Support\Str;
 
@@ -56,10 +56,23 @@ return [
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'strict' => true,
+            'strict' => false,
+            'modes' => [
+                'ONLY_FULL_GROUP_BY',
+                'STRICT_TRANS_TABLES',
+                'NO_ZERO_IN_DATE',
+                'NO_ZERO_DATE',
+                'ERROR_FOR_DIVISION_BY_ZERO',
+                'NO_ENGINE_SUBSTITUTION',
+            ],
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_CA : (defined('PDO::MYSQL_ATTR_SSL_CA') ? \PDO::MYSQL_ATTR_SSL_CA : 1008)) => env('MYSQL_ATTR_SSL_CA'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_CAPATH : (defined('PDO::MYSQL_ATTR_SSL_CAPATH') ? \PDO::MYSQL_ATTR_SSL_CAPATH : 1009)) => env('MYSQL_ATTR_SSL_CAPATH'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_CERT : (defined('PDO::MYSQL_ATTR_SSL_CERT') ? \PDO::MYSQL_ATTR_SSL_CERT : 1007)) => env('MYSQL_ATTR_SSL_CERT'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_CIPHER : (defined('PDO::MYSQL_ATTR_SSL_CIPHER') ? \PDO::MYSQL_ATTR_SSL_CIPHER : 1010)) => env('MYSQL_ATTR_SSL_CIPHER'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_KEY : (defined('PDO::MYSQL_ATTR_SSL_KEY') ? \PDO::MYSQL_ATTR_SSL_KEY : 1006)) => env('MYSQL_ATTR_SSL_KEY'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT : (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT') ? \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT : 1013)) => env('MYSQL_ATTR_SSL_VERIFY_SERVER_CERT'),
             ]) : [],
         ],
 
@@ -79,7 +92,12 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_CA : (defined('PDO::MYSQL_ATTR_SSL_CA') ? \PDO::MYSQL_ATTR_SSL_CA : 1008)) => env('MYSQL_ATTR_SSL_CA'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_CAPATH : (defined('PDO::MYSQL_ATTR_SSL_CAPATH') ? \PDO::MYSQL_ATTR_SSL_CAPATH : 1009)) => env('MYSQL_ATTR_SSL_CAPATH'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_CERT : (defined('PDO::MYSQL_ATTR_SSL_CERT') ? \PDO::MYSQL_ATTR_SSL_CERT : 1007)) => env('MYSQL_ATTR_SSL_CERT'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_CIPHER : (defined('PDO::MYSQL_ATTR_SSL_CIPHER') ? \PDO::MYSQL_ATTR_SSL_CIPHER : 1010)) => env('MYSQL_ATTR_SSL_CIPHER'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_KEY : (defined('PDO::MYSQL_ATTR_SSL_KEY') ? \PDO::MYSQL_ATTR_SSL_KEY : 1006)) => env('MYSQL_ATTR_SSL_KEY'),
+                (class_exists('Pdo\Mysql') ? \Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT : (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT') ? \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT : 1013)) => env('MYSQL_ATTR_SSL_VERIFY_SERVER_CERT'),
             ]) : [],
         ],
 
@@ -148,7 +166,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
@@ -181,3 +199,6 @@ return [
     ],
 
 ];
+
+
+

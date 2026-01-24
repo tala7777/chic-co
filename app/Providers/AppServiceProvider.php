@@ -19,6 +19,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Pagination\Paginator::useBootstrapFive();
+
+        // \Livewire\Livewire::setUpdateRoute(function ($handle) {
+        //     return \Illuminate\Support\Facades\Route::post('/livewire/update', $handle);
+        // });
+
+        // \Livewire\Livewire::setScriptRoute(function ($handle) {
+        //     return \Illuminate\Support\Facades\Route::get('/livewire/livewire.js', $handle);
+        // });
     }
 }

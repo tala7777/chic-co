@@ -12,9 +12,9 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Category::create(['name' => 'Tops', 'slug' => 'tops']);
-        \App\Models\Category::create(['name' => 'Dresses', 'slug' => 'dresses']);
-        \App\Models\Category::create(['name' => 'Accessories', 'slug' => 'accessories']);
-        \App\Models\Category::create(['name' => 'Outerwear', 'slug' => 'outerwear']);
+        \App\Models\Category::firstOrCreate(['slug' => 'tops'], ['name' => 'Tops']);
+        \App\Models\Category::firstOrCreate(['slug' => 'dresses'], ['name' => 'Dresses']);
+        \App\Models\Category::firstOrCreate(['slug' => 'accessories'], ['name' => 'Accessories']);
+        \App\Models\Category::firstOrCreate(['slug' => 'outerwear'], ['name' => 'Outerwear']);
     }
 }

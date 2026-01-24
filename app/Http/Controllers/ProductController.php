@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Product;
 use App\Models\Category;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -35,6 +36,9 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
         ]);
+
+        $validated['slug'] = Str::slug($validated['name']);
+        $validated['sku'] = 'PRD-' . strtoupper(Str::random(6));
 
         Product::create($validated);
 
@@ -67,6 +71,8 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
         ]);
+
+        $validated['slug'] = Str::slug($validated['name']);
 
         $product->update($validated);
 

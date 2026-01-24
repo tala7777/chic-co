@@ -11,8 +11,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->string('slug')->unique()->after('name');
-            $table->string('sku')->unique()->after('slug');
+            $table->string('slug')->nullable()->after('name');
+            $table->string('sku')->nullable()->after('slug');
             $table->text('description')->nullable()->after('price');
             $table->integer('stock')->default(0)->after('description');
             $table->boolean('is_featured')->default(false)->after('stock');

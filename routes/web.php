@@ -2,93 +2,185 @@
 
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
-
-
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ShopController;
+use App\Http\Controllers\EnterSessionController;
+use App\Livewire\Shop;
+use App\Livewire\Cart;
+use App\Livewire\Checkout;
+use App\Livewire\SparkleQuiz;
+use App\Livewire\PersonalizedFeed;
+use App\Livewire\User\Orders as UserOrders;
+use App\Livewire\User\Wishlist as UserWishlist;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application.
-|
 */
 
-// Session & Middleware Testing
-Route::get('/set-session', function () {
-    session(['name' => 'Ahmad']);
-    return "Session set to Ahmad";
-});
-
-Route::get('/get-session', function () {
-    return "Session name: " . session('name', 'Not found');
-});
-
-Route::get('/secret', function () {
-    return "Welcome! You are 18 or older.";
-})->middleware(\App\Http\Middleware\CheckAge::class);
-
-// User Routes
+// Public Routes
 Route::get('/', function () {
     return view('welcome');
+})->name('home');
+
+Route::get('/enter-session', EnterSessionController::class)->name('enter.session');
+
+// Debug route
+Route::get('/debug-auth', function () {
+    return [
+        'check' => auth()->check(),
+        'user' => auth()->user(),
+        'session_id' => session()->getId(),
+        'role' => auth()->check() ? auth()->user()->role : null,
+        'is_admin_check' => auth()->check() ? (auth()->user()->role === 'admin') : false,
+        'env' => config('app.env'),
+        'url' => config('app.url'),
+        'session_driver' => config('session.driver'),
+    ];
 });
 
-Route::get('/quiz', function () {
-    return view('quiz.index');
+Route::get('/debug-recommendations', function () {
+    return view('debug-recommendations');
 });
 
-Route::get('/shop', function () {
-    return view('shop.index');
-});
-Route::get('/styles', function () {
-    return view('shop.index'); // Reuse shop for styles demo
-});
-Route::get('/new-in', function () {
-    return view('shop.index'); // Reuse shop for new-in demo
+// Shop Universe
+Route::prefix('shop')->name('shop.')->group(function () {
+    Route::get('/', Shop::class)->name('index');
+    Route::get('/{id}', \App\Livewire\ProductDetail::class)->name('show');
 });
 
+// Discovery Engine
+Route::get('/style-quiz', SparkleQuiz::class)->name('sparkle.quiz');
+Route::get('/my-edit', PersonalizedFeed::class)->name('personalized.feed');
 
-Route::get('/shop/{id}', function ($id) {
-    return view('shop.show', ['id' => $id]);
-});
+// Cart & Acquisition
+Route::get('/cart', Cart::class)->name('cart');
+Route::get('/checkout', Checkout::class)->name('checkout');
+Route::get('/checkout/success/{order}', function (\App\Models\Order $order) {
+    return view('checkout.success', compact('order'));
+})->name('checkout.success');
 
-Route::get('/cart', function () {
-    return view('cart.index');
-});
-
-Route::get('/checkout', function () {
-    return view('checkout.index');
-});
-
-Route::get('/dashboard', function () {
-    return view('dashboard.index');
-})->middleware('auth');
-
-// Admin Routes
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+// Authenticated User Universe
+Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        return view('admin.dashboard');
+        return view('dashboard.index');
     })->name('dashboard');
 
-    // Category Routes
-    Route::resource('categories', CategoryController::class);
+    Route::prefix('account')->name('account.')->group(function () {
+        Route::get('/orders', UserOrders::class)->name('orders');
+        Route::get('/wishlist', UserWishlist::class)->name('wishlist');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
+});
 
-    // Product Routes
+// Curator (Admin) Panel
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('dashboard');
+
+    // Inventory Management
+    Route::resource('categories', CategoryController::class);
     Route::get('products/trash', [ProductController::class, 'trash'])->name('products.trash');
     Route::put('products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
-    Route::resource('products', ProductController::class);
+    // Livewire Manager for Index/Create/Edit/Destroy (managed via sidebars in the component)
+    Route::get('/products', \App\Livewire\Admin\ProductManager::class)->name('products.index');
+    // Keep specialized resource routes if needed, but Manager handles most.
+    // For now, we will comment out the resource to avoid conflict and see if Manager covers it.
+    // Route::resource('products', ProductController::class);
 
-    Route::get('/orders', function () {
-        return view('admin.orders.index');
-    })->name('orders.index');
-    Route::get('/users', function () {
-        return view('admin.users.index');
-    })->name('users.index');
-    Route::get('/reviews', function () {
-        return view('admin.reviews.index');
-    })->name('reviews.index');
+    // Business Intelligence & Operations
+    Route::get('/orders', \App\Livewire\Admin\OrderManager::class)->name('orders.index');
+    Route::get('/users', \App\Livewire\Admin\UserManager::class)->name('users.index');
+    Route::get('/reviews', \App\Livewire\Admin\ReviewManager::class)->name('reviews.index');
+
+    // Account Management
+    Route::get('/account', \App\Livewire\Admin\AccountSettings::class)->name('account');
 });
-Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+require __DIR__ . '/auth.php';
+
+
+// Extension test route
+Route::get('/php-info', function () {
+    $extensions = [
+        'Required' => [
+            'curl' => 'HTTP requests',
+            'fileinfo' => 'File type detection',
+            'mbstring' => 'Multibyte strings',
+            'openssl' => 'Encryption',
+            'pdo_mysql' => 'MySQL database',
+            'pdo_sqlite' => 'SQLite database',
+            'sqlite3' => 'SQLite3',
+            'xml' => 'XML parsing',
+            'zip' => 'Zip archives',
+            'gd' => 'Image processing',
+        ],
+        'Optional' => [
+            'bcmath' => 'Precise mathematics',
+            'exif' => 'Image metadata',
+            'intl' => 'Internationalization',
+            'soap' => 'SOAP client',
+            'xsl' => 'XSL transformations',
+        ]
+    ];
+
+    $results = [];
+    foreach ($extensions as $category => $extList) {
+        foreach ($extList as $ext => $purpose) {
+            $loaded = extension_loaded($ext);
+            $results[] = [
+                'category' => $category,
+                'extension' => $ext,
+                'loaded' => $loaded,
+                'purpose' => $purpose,
+                'icon' => $loaded ? '?' : '?'
+            ];
+        }
+    }
+
+    return view('extensions-test', ['results' => $results]);
+});
+
+// Quick performance test
+Route::get('/php-perf', function () {
+    $start = microtime(true);
+
+    // Test common operations
+    $tests = [
+        'String operations' => function () {
+            return str_repeat('test', 10000);
+        },
+        'Array operations' => function () {
+            $arr = range(1, 10000);
+            return array_sum($arr);
+        },
+        'Math operations' => function () {
+            $result = 0;
+            for ($i = 0; $i < 10000; $i++) {
+                $result += sqrt($i);
+            }
+            return $result;
+        }
+    ];
+
+    $results = [];
+    foreach ($tests as $name => $test) {
+        $testStart = microtime(true);
+        $test();
+        $results[$name] = round((microtime(true) - $testStart) * 1000, 2) . 'ms';
+    }
+
+    $totalTime = round((microtime(true) - $start) * 1000, 2);
+
+    return response()->json([
+        'php_version' => phpversion(),
+        'memory_limit' => ini_get('memory_limit'),
+        'opcache_enabled' => extension_loaded('opcache'),
+        'tests' => $results,
+        'total_time' => $totalTime . 'ms',
+        'extensions_loaded' => count(get_loaded_extensions())
+    ]);
+});

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Category;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -25,6 +26,8 @@ class CategoryController extends Controller
             'name' => 'required|min:2|unique:categories,name',
         ]);
 
+        $validated['slug'] = Str::slug($validated['name']);
+
         Category::create($validated);
 
         return redirect()->route('admin.categories.index')
@@ -44,6 +47,8 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|min:2|unique:categories,name,' . $id,
         ]);
+
+        $validated['slug'] = Str::slug($validated['name']);
 
         $category->update($validated);
 
