@@ -117,6 +117,7 @@
                                     class="fa fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} text-primary"></i>
                                 @else <i class="fa fa-sort opacity-25"></i> @endif
                             </th>
+                            <th class="py-3 border-0 text-uppercase extra-small text-muted fw-bold ls-1">Discount</th>
                             <th class="py-3 border-0 text-uppercase extra-small text-muted fw-bold ls-1">Colors</th>
                             <th class="py-3 border-0 text-uppercase extra-small text-muted fw-bold ls-1 text-center cursor-pointer"
                                 wire:click="sortBy('stock')">
@@ -156,14 +157,27 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span
-                                        class="small text-muted fw-medium">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                                    <a href="{{ route('admin.categories.index') }}" wire:navigate
+                                        class="text-decoration-none">
+                                        <span class="small text-primary fw-bold hover-underline">
+                                            {{ $product->category->name ?? 'Uncategorized' }}
+                                        </span>
+                                    </a>
                                 </td>
                                 <td>
                                     <div class="fw-bold text-dark small">
                                         {{ number_format($product->price, 0) }} <span
                                             class="text-muted extra-small fw-normal">JOD</span>
                                     </div>
+                                </td>
+                                <td>
+                                    @if($product->discount_percentage > 0)
+                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 extra-small">
+                                            -{{ (float) $product->discount_percentage }}%
+                                        </span>
+                                    @else
+                                        <span class="text-muted opacity-50 extra-small">—</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <div class="d-flex gap-1">
@@ -226,7 +240,7 @@
         </div>
         @if($products->count() > 0)
             <div class="card-footer bg-white py-4 border-0 d-flex justify-content-center">
-                {{ $products->links('pagination::bootstrap-5') }}
+                {{ $products->links() }}
             </div>
         @endif
     </div>
@@ -309,17 +323,45 @@
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-uppercase"
-                                    style="font-size: 0.75rem; letter-spacing: 1px; color: #666;">Stock Quantity</label>
-                                <input type="number" wire:model.live.debounce.500ms="stock"
-                                    class="form-control border-0 bg-light rounded-3 p-3 @error('stock') is-invalid @enderror"
+                                    style="font-size: 0.75rem; letter-spacing: 1px; color: #666;">Discount (%)</label>
+                                <input type="number" step="0.1" wire:model.live.debounce.500ms="discount_percentage"
+                                    class="form-control border-0 bg-light rounded-3 p-3 @error('discount_percentage') is-invalid @enderror"
                                     placeholder="0">
+                                @error('discount_percentage') <div class="invalid-feedback ms-2">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-12">
+                                <label
+                                    class="form-label fw-bold text-uppercase d-flex justify-content-between align-items-center"
+                                    style="font-size: 0.75rem; letter-spacing: 1px; color: #666;">
+                                    <span>Stock Quantity</span>
+                                    @if(count($colors ?? []) > 0)
+                                        <span class="badge bg-soft-blush text-primary extra-small border-0">Auto-calculated from
+                                            colors</span>
+                                    @endif
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light p-3">
+                                        <i
+                                            class="fa fa-boxes-stacked {{ count($colors ?? []) > 0 ? 'text-primary' : 'text-muted' }}"></i>
+                                    </span>
+                                    <input type="number" wire:model.live.debounce.500ms="stock"
+                                        class="form-control border-0 bg-light rounded-end-3 p-3 @error('stock') is-invalid @enderror"
+                                        placeholder="0" {{ count($colors ?? []) > 0 ? 'readonly' : '' }}>
+                                </div>
+                                @if(count($colors ?? []) > 0)
+                                    <div class="form-text extra-small mt-1 text-primary">
+                                        <i class="fa fa-info-circle me-1"></i> Total stock is locked while colors are selected.
+                                    </div>
+                                @endif
                                 @error('stock') <div class="invalid-feedback ms-2">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label fw-bold text-uppercase mb-3"
                                     style="font-size: 0.75rem; letter-spacing: 1px; color: #666;">Available Colors</label>
-                                <div class="d-flex flex-wrap gap-2">
+                                <div class="d-flex flex-wrap gap-2 mb-3">
                                     @foreach(['#000000', '#F5F5DC', '#FFFFFF', '#808080', '#A52A2A', '#000080', '#2E8B57', '#C0C0C0', '#FFD700'] as $c)
                                         <div class="form-check form-check-inline p-0 m-0">
                                             <input type="checkbox" wire:model.live="colors" value="{{ $c }}"
@@ -334,6 +376,58 @@
                                         </div>
                                     @endforeach
                                 </div>
+
+                                @if(count($colors ?? []) > 0)
+                                    <div class="mt-4 p-4 rounded-4 border bg-white shadow-sm animate-fade-in"
+                                        style="border-style: dashed !important; border-width: 2px !important;">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="extra-small text-muted text-uppercase fw-bold ls-1 mb-0">Variant
+                                                Inventory Control</h6>
+                                            <button type="button" wire:click="$set('colors', [])"
+                                                class="btn btn-link p-0 extra-small text-danger text-decoration-none">
+                                                <i class="fa fa-times"></i> Clear Colors
+                                            </button>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            @foreach($colors as $c)
+                                                <div class="col-md-6" wire:key="variant-stock-{{ $c }}">
+                                                    <div
+                                                        class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 transition-all hover-lift border border-transparent hover-border-primary">
+                                                        <div class="rounded-circle border shadow-sm flex-shrink-0"
+                                                            style="width: 32px; height: 32px; background-color: {{ $c }};">
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="number" wire:model.live="color_stock.{{ $c }}"
+                                                                    class="form-control border-0 bg-white rounded-3 fw-bold text-center"
+                                                                    placeholder="0" style="font-size: 0.9rem;">
+                                                                <span
+                                                                    class="input-group-text bg-white border-0 extra-small text-muted">UNITS</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        <div class="mt-3 text-center border-top pt-3 opacity-75">
+                                            <span class="extra-small text-muted">
+                                                <i class="fa fa-calculator me-1"></i>
+                                                Sum calculation:
+                                                {{ implode(' + ', array_filter(array_values($color_stock ?? []), fn($v) => !is_null($v) && $v !== '')) ?: '0' }}
+                                                =
+                                                <strong>{{ $stock }} units</strong>
+                                            </span>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div
+                                        class="mt-3 p-3 rounded-4 bg-light text-center border border-dashed text-muted extra-small">
+                                        <i class="fa fa-palette me-2"></i> Select colors above to enable color-specific
+                                        inventory tracking.
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="col-12">
@@ -478,6 +572,19 @@
         .color-picker-btn:hover {
             transform: scale(1.15);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .hover-border-primary:hover {
+            border-color: #F6A6B2 !important;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
     </style>
 </div>

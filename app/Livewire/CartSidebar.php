@@ -30,7 +30,7 @@ class CartSidebar extends Component
                 'item_id' => $item->id, // DB record ID
                 'id' => $item->product_id,
                 'name' => $item->product->name,
-                'price' => $item->product->price,
+                'price' => $item->product->discounted_price,
                 'image' => $item->product->image ?? ($item->product->images->first()?->url ?? asset('images/placeholder.jpg')),
                 'size' => $item->size,
                 'color' => $item->color,
@@ -82,6 +82,11 @@ class CartSidebar extends Component
             $this->updateCart();
             $this->dispatch('cart-updated');
         }
+    }
+
+    public function checkout()
+    {
+        return redirect()->route('checkout');
     }
 
     public function render()

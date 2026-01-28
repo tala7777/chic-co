@@ -101,7 +101,7 @@ class Checkout extends Component
                 'id' => $item->product_id,
                 'name' => $item->product->name,
                 'image' => $item->product->image ?? ($item->product->images->first()?->url ?? asset('images/placeholder.jpg')),
-                'price' => $item->product->price,
+                'price' => $item->product->discounted_price,
                 'quantity' => $item->quantity,
                 'size' => $item->size,
                 'color' => $item->color
@@ -156,14 +156,34 @@ class Checkout extends Component
         $this->paymentMethod = 'card';
     }
 
+    public function confirmOrder()
+    {
+        $this->validate();
+
+        $this->dispatch(
+            'trigger-confirm',
+            title: 'Finalize Acquisition?',
+            text: 'We are about to curate your selection into a final order. Shall we proceed?',
+            confirmButtonText: 'Confirm Order',
+            method: 'place-order-confirmed'
+        );
+    }
+
+    #[\Livewire\Attributes\On('place-order-confirmed')]
     public function placeOrder()
     {
         $this->validate();
 
-        $user = auth()->user();
-        $isGuest = !$user;
+        // 2. Authentication Check (Final Gate)
+        if (!auth()->check()) {
+            session(['url.intended' => route('checkout')]);
+            $this->dispatch('swal:auth-prompt');
+            return;
+        }
 
-        // 1. Refresh cart from service one last time
+        $user = auth()->user();
+
+        // 2. Refresh cart from service one last time
         $cartService = new \App\Services\CartService();
         $this->mount(); // Refresh internal cart state
 
@@ -172,8 +192,8 @@ class Checkout extends Component
             return;
         }
 
-        // 2. Handle Addresses if logged in
-        if ($user && $this->selectedAddressId === 'new') {
+        // 3. Handle Addresses
+        if ($this->selectedAddressId === 'new') {
             UserAddress::create([
                 'user_id' => $user->id,
                 'area' => $this->area,
@@ -185,8 +205,8 @@ class Checkout extends Component
             ]);
         }
 
-        // 3. Handle Payment Method if logged in
-        if ($user && $this->paymentMethod === 'card' && $this->selectedPaymentMethodId === 'new') {
+        // 4. Handle Payment Method
+        if ($this->paymentMethod === 'card' && $this->selectedPaymentMethodId === 'new') {
             UserPaymentMethod::create([
                 'user_id' => $user->id,
                 'type' => 'card',
@@ -200,25 +220,35 @@ class Checkout extends Component
         // Pre-order stock check
         foreach ($this->cart as $item) {
             $product = Product::find($item['id']);
-            if (!$product || $product->stock < $item['quantity']) {
+            if (!$product)
+                continue;
+
+            $color = $item['color'] ?? null;
+            $stockAvailable = $product->stock;
+
+            if ($color && isset($product->color_stock[$color])) {
+                $stockAvailable = (int) $product->color_stock[$color];
+            }
+
+            if ($stockAvailable < $item['quantity']) {
                 $this->dispatch('swal:error', [
                     'title' => 'Stock Insufficient',
-                    'text' => 'Some items in your cart (' . ($product->name ?? 'Unknown') . ') have just been acquired by other clients.',
+                    'text' => 'The ' . ($color ?? '') . ' version of ' . ($product->name ?? 'item') . ' has just been acquired by other clients.',
                     'icon' => 'error'
                 ]);
                 return;
             }
         }
 
-        // 3. Create Order
+        // 5. Create Order
         $order = Order::create([
-            'user_id' => $isGuest ? null : $user->id,
+            'user_id' => $user->id,
             'order_number' => 'CHIC-' . strtoupper(Str::random(8)),
             'total_amount' => $this->total,
             'status' => 'pending',
             'payment_status' => $this->paymentMethod === 'card' ? 'paid' : 'pending',
             'payment_method' => $this->paymentMethod,
-            'shipping_address' => $user ? ($this->selectedAddressId !== 'new' ? UserAddress::find($this->selectedAddressId)->street_address : $this->streetAddress) : $this->streetAddress,
+            'shipping_address' => $this->selectedAddressId !== 'new' ? UserAddress::find($this->selectedAddressId)->street_address : $this->streetAddress,
             'tracking_number' => 'TRK-' . strtoupper(Str::random(10)),
         ]);
 
@@ -240,45 +270,49 @@ class Checkout extends Component
                 $product->increment('recent_purchases', 1);
                 $product->decrement('stock', $item['quantity']);
 
+                // Update color-specific stock
+                if ($item['color'] && isset($product->color_stock[$item['color']])) {
+                    $cStock = $product->color_stock;
+                    $cStock[$item['color']] = max(0, (int) $cStock[$item['color']] - $item['quantity']);
+                    $product->color_stock = $cStock;
+                    $product->save();
+                }
+
                 if ($product->aesthetic) {
                     $purchasedAesthetics[] = $product->aesthetic;
                 }
 
-                if (!$isGuest) {
-                    UserBehavior::create([
-                        'user_id' => $user->id,
-                        'product_id' => $product->id,
-                        'action' => 'purchase',
-                        'metadata' => ['order_id' => $order->id]
-                    ]);
-                }
+                UserBehavior::create([
+                    'user_id' => $user->id,
+                    'product_id' => $product->id,
+                    'action' => 'purchase',
+                    'metadata' => ['order_id' => $order->id]
+                ]);
             }
         }
 
         // 5. Update User Profile & Loyalty
-        if (!$isGuest) {
-            $user->update([
-                'total_spent' => $user->total_spent + $this->total,
-                'last_purchase_at' => now(),
-                'preferred_aesthetics' => array_unique(array_merge($user->preferred_aesthetics ?? [], $purchasedAesthetics)),
-            ]);
+        $user->update([
+            'total_spent' => $user->total_spent + $this->total,
+            'last_purchase_at' => now(),
+            'preferred_aesthetics' => array_unique(array_merge($user->preferred_aesthetics ?? [], $purchasedAesthetics)),
+        ]);
 
-            LoyaltyPoint::create([
-                'user_id' => $user->id,
-                'points' => intval($this->total),
-                'source' => 'purchase',
-                'order_id' => $order->id,
-                'expires_at' => now()->addYear(),
-            ]);
+        LoyaltyPoint::create([
+            'user_id' => $user->id,
+            'points' => intval($this->total),
+            'source' => 'purchase',
+            'order_id' => $order->id,
+            'expires_at' => now()->addYear(),
+        ]);
 
-            // Schedule Delivery Update
-            ScheduledCommunication::create([
-                'user_id' => $user->id,
-                'order_id' => $order->id,
-                'type' => 'delivery_update',
-                'scheduled_at' => now()->addDay(),
-            ]);
-        }
+        // Schedule Delivery Update
+        ScheduledCommunication::create([
+            'user_id' => $user->id,
+            'order_id' => $order->id,
+            'type' => 'delivery_update',
+            'scheduled_at' => now()->addDay(),
+        ]);
 
         // 6. Send Email Confirmation
         try {
@@ -288,11 +322,25 @@ class Checkout extends Component
             \Log::error("Mail failed: " . $e->getMessage());
         }
 
-        // 7. Finalize
+        /**
+         * FUTURE PAYMENT API INTEGRATION POINT
+         * ====================================
+         * If paymentMethod === 'card', instead of immediate success,
+         * we would initialize the payment gateway here:
+         * $paymentResponse = PaymentProvider::charge($order, $this->all());
+         * if ($paymentResponse->successful()) { ... }
+         */
+
+        // 8. Finalize
         $cartService->clear();
         $this->dispatch('cart-updated');
 
         return redirect()->route('checkout.success', ['order' => $order->id]);
+    }
+
+    public function handleAuthRedirect()
+    {
+        return redirect()->route('login', ['intended' => route('checkout')]);
     }
 
     public function render()

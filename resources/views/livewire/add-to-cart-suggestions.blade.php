@@ -27,7 +27,7 @@
                         @foreach($suggestions as $suggestion)
                             <div class="col-12">
                                 <div class="d-flex gap-3 align-items-center p-2 rounded-4 hover-bg-light transition-all">
-                                    <a href="{{ url('/shop/' . $suggestion->id) }}" class="flex-shrink-0"
+                                    <a href="{{ route('shop.show', $suggestion->id) }}" class="flex-shrink-0"
                                         style="width: 80px; height: 100px;">
                                         <img src="{{ $suggestion->image }}"
                                             class="w-100 h-100 object-fit-cover rounded-3 shadow-sm">

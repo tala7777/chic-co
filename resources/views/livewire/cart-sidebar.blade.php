@@ -10,8 +10,10 @@
                     @foreach($cart as $item)
                         <div class="d-flex gap-3 align-items-start border-bottom pb-4">
                             <div class="position-relative">
-                                <img src="{{ $item['image'] ?? 'https://via.placeholder.com/60' }}" alt="{{ $item['name'] }}"
-                                    class="rounded-4 shadow-sm object-fit-cover" style="width: 80px; height: 100px;">
+                                <a href="{{ route('shop.show', $item['id']) }}">
+                                    <img src="{{ $item['image'] ?? 'https://via.placeholder.com/60' }}" alt="{{ $item['name'] }}"
+                                        class="rounded-4 shadow-sm object-fit-cover" style="width: 80px; height: 100px;">
+                                </a>
                                 @if($item['out_of_stock'])
                                     <span class="position-absolute top-0 start-0 badge bg-danger m-1" style="font-size: 0.6rem;">Sold Out</span>
                                 @endif
@@ -19,7 +21,7 @@
                             <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <h6 class="mb-1 font-heading fw-bold text-uppercase text-truncate" style="max-width: 140px;">
-                                        {{ $item['name'] }}
+                                        <a href="{{ route('shop.show', $item['id']) }}" class="text-decoration-none text-dark">{{ $item['name'] }}</a>
                                     </h6>
                                     <button class="btn btn-link text-muted extra-small p-0 text-decoration-none text-uppercase ls-1 hover-text-dark"
                                         wire:click="removeFromCart({{ $item['item_id'] }})">Remove</button>
@@ -58,13 +60,19 @@
                     <div class="row g-3">
                         @foreach($recommendations as $rec)
                             <div class="col-4">
-                                <a href="{{ url('/product/' . $rec->id) }}" class="text-decoration-none group">
+                                <a href="{{ route('shop.show', $rec->id) }}" class="text-decoration-none group">
                                     <div class="position-relative mb-2 overflow-hidden rounded-3">
                                         <img src="{{ $rec->image ?? ($rec->images->first()?->url ?? asset('images/placeholder.jpg')) }}"
                                             class="w-100 shadow-sm transition-premium group-hover-scale" style="height: 120px; object-fit: cover;">
                                     </div>
                                     <p class="extra-small text-dark text-truncate mb-0 fw-bold">{{ $rec->name }}</p>
-                                    <p class="extra-small text-muted mb-0">{{ number_format($rec->price, 0) }} JOD</p>
+                                    <p class="extra-small text-muted mb-0">
+                                        @if($rec->hasDiscount())
+                                            <span class="text-dark">{{ number_format($rec->discounted_price, 0) }} JOD</span>
+                                        @else
+                                            {{ number_format($rec->price, 0) }} JOD
+                                        @endif
+                                    </p>
                                 </a>
                             </div>
                         @endforeach
@@ -80,9 +88,9 @@
                 </div>
                 <p class="text-muted extra-small mb-4">Shipping & taxes calculated at checkout.</p>
                 <div class="d-grid">
-                    <a href="{{ url('/checkout') }}" class="btn btn-primary-custom py-3 rounded-pill text-uppercase ls-1 fw-bold">
+                    <button wire:click="checkout" class="btn btn-primary-custom py-3 rounded-pill text-uppercase ls-1 fw-bold">
                         Proceed to Checkout
-                    </a>
+                    </button>
                 </div>
             </div>
         @else

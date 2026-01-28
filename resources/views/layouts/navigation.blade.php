@@ -99,9 +99,9 @@
                             <hr class="dropdown-divider opacity-10">
                         </li>
                         <li>
-                            <form method="POST" action="{{ route('logout') }}">
+                            <form id="logout-form-nav" method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit"
+                                <button type="button" onclick="confirmLogout('logout-form-nav')"
                                     class="dropdown-item rounded-3 py-2 text-danger w-100 text-start border-0 bg-transparent">
                                     <i class="fa-solid fa-power-off me-2 opacity-50"></i> Departure
                                 </button>

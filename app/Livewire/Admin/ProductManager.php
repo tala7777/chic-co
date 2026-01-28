@@ -31,8 +31,9 @@ class ProductManager extends Component
     public $statusFilter = '';
 
     // Form/Details
-    public $name, $description, $price, $category_id, $image, $product_id, $aesthetic, $stock = 10, $status = 'active', $is_featured = false;
-    public $colors = []; // Added colors property
+    public $name, $description, $price, $discount_percentage = 0, $category_id, $image, $product_id, $aesthetic, $stock = 10, $status = 'active', $is_featured = false;
+    public $colors = [];
+    public $color_stock = [];
 
     public $isEditMode = false;
     public $showProductSidebar = false;
@@ -53,7 +54,9 @@ class ProductManager extends Component
         $this->validateOnly($propertyName, [
             'name' => 'nullable|min:3',
             'price' => 'nullable|numeric|regex:/^\d+(\.\d{1,2})?$/',
+            'discount_percentage' => 'nullable|numeric|min:0|max:100',
             'stock' => 'nullable|integer|min:0',
+            'color_stock.*' => 'nullable|integer|min:0',
         ]);
     }
 
@@ -109,6 +112,7 @@ class ProductManager extends Component
         $this->name = $product->name;
         $this->description = $product->description;
         $this->price = $product->price;
+        $this->discount_percentage = $product->discount_percentage;
         $this->category_id = $product->category_id;
         $this->aesthetic = $product->aesthetic;
         $this->image = $product->image;
@@ -116,10 +120,36 @@ class ProductManager extends Component
         $this->status = $product->status;
         $this->is_featured = $product->is_featured;
         $this->colors = $product->colors ?? [];
+        $this->color_stock = $product->color_stock ?? [];
         $this->selectedProduct = $product;
 
         $this->isEditMode = true;
         $this->showProductSidebar = true;
+    }
+
+    public function updatedColors()
+    {
+        // Ensure color_stock only contains valid selected colors
+        // But preserve existing quantities for colors that are still selected
+        $newColorStock = [];
+        foreach ($this->colors as $color) {
+            $newColorStock[$color] = $this->color_stock[$color] ?? 1; // Default to 1 for new selections
+        }
+        $this->color_stock = $newColorStock;
+        $this->syncTotalStock();
+    }
+
+    public function updatedColorStock($value, $key)
+    {
+        // Key might be like '#000000'
+        $this->syncTotalStock();
+    }
+
+    private function syncTotalStock()
+    {
+        if (!empty($this->colors)) {
+            $this->stock = array_sum($this->color_stock);
+        }
     }
 
     public function save()
@@ -127,9 +157,11 @@ class ProductManager extends Component
         $rules = [
             'name' => 'required|min:3',
             'price' => 'required|numeric',
+            'discount_percentage' => 'nullable|numeric|min:0|max:100',
             'aesthetic' => 'required|in:soft,alt,luxury,mix',
             'stock' => 'required|integer|min:0',
             'colors' => 'nullable|array',
+            'color_stock' => 'nullable|array',
         ];
 
         $this->validate($rules);
@@ -139,6 +171,7 @@ class ProductManager extends Component
             'slug' => Str::slug($this->name),
             'description' => $this->description,
             'price' => $this->price,
+            'discount_percentage' => $this->discount_percentage ?: 0,
             'category_id' => $this->category_id ?: null,
             'aesthetic' => $this->aesthetic,
             'image' => $this->image ?? 'https://via.placeholder.com/300',
@@ -146,7 +179,13 @@ class ProductManager extends Component
             'status' => $this->status,
             'is_featured' => $this->is_featured,
             'colors' => $this->colors,
+            'color_stock' => $this->color_stock,
         ];
+
+        // Ensure total stock equals sum of color quantities if colors are defined
+        if (!empty($this->colors)) {
+            $data['stock'] = array_sum($this->color_stock);
+        }
 
         if ($this->isEditMode) {
             Product::find($this->product_id)->update($data);
@@ -176,7 +215,7 @@ class ProductManager extends Component
 
     private function resetInputFields()
     {
-        $this->reset(['name', 'description', 'price', 'category_id', 'aesthetic', 'image', 'stock', 'status', 'is_featured', 'product_id', 'selectedProduct', 'colors']);
+        $this->reset(['name', 'description', 'price', 'discount_percentage', 'category_id', 'aesthetic', 'image', 'stock', 'status', 'is_featured', 'product_id', 'selectedProduct', 'colors', 'color_stock']);
     }
 
     public function render()

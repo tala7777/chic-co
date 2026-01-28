@@ -24,6 +24,7 @@
 
     <!-- Scripts and CSS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
     <style>
         :root {
@@ -396,6 +397,56 @@
             transform: scale(1.1);
             color: #000;
         }
+
+        /* Premium Pagination Styling */
+        .pagination {
+            gap: 8px;
+            border: none;
+        }
+
+        .page-item {
+            border: none;
+        }
+
+        .page-link {
+            border: 1px solid rgba(0, 0, 0, 0.05) !important;
+            color: var(--color-ink-black) !important;
+            border-radius: 12px !important;
+            padding: 10px 18px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: #fff;
+            transition: var(--transition-premium);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .page-link:hover {
+            background: var(--color-cloud) !important;
+            color: var(--color-primary-blush) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-color: var(--color-primary-blush) !important;
+        }
+
+        .page-item.active .page-link {
+            background: var(--color-ink-black) !important;
+            border-color: var(--color-ink-black) !important;
+            color: #fff !important;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .page-item.disabled .page-link {
+            background: transparent !important;
+            color: #ccc !important;
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .page-item:first-child .page-link,
+        .page-item:last-child .page-link {
+            border-radius: 12px !important;
+        }
     </style>
 </head>
 
@@ -448,23 +499,50 @@
             buttonsStyling: false
         };
 
+        const getSwalData = (event) => {
+            if (event.detail && typeof event.detail === 'object') {
+                return Array.isArray(event.detail) ? event.detail[0] : event.detail;
+            }
+            return {};
+        };
+
         window.addEventListener('swal:success', event => {
-            const data = event.detail[0];
+            const data = getSwalData(event);
             Swal.fire({
                 ...softSwal,
-                title: data.title,
-                text: data.text,
+                title: data.title || 'Success',
+                text: data.text || '',
                 icon: 'success',
                 iconColor: 'var(--color-primary-blush)'
             });
         });
 
-        window.addEventListener('swal:error', event => {
-            const data = event.detail[0];
+        window.addEventListener('swal:auth-prompt', event => {
             Swal.fire({
                 ...softSwal,
-                title: data.title,
-                text: data.text,
+                title: 'Exclusive Access',
+                text: 'To curate your final selection and secure your order, please sign in or join our archive.',
+                icon: 'info',
+                iconColor: 'var(--color-primary-blush)',
+                showCancelButton: true,
+                confirmButtonText: 'Sign In',
+                cancelButtonText: 'Register',
+                showCloseButton: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('login') }}";
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.href = "{{ route('register') }}";
+                }
+            });
+        });
+
+        window.addEventListener('swal:error', event => {
+            const data = getSwalData(event);
+            Swal.fire({
+                ...softSwal,
+                title: data.title || 'Error',
+                text: data.text || 'Something went wrong.',
                 icon: 'error',
                 iconColor: 'var(--color-ink-black)'
             });
@@ -522,6 +600,29 @@
                 }
             });
         }
+
+        function confirmLogout(formId) {
+            Swal.fire({
+                ...softSwal,
+                title: 'Depart Curiosity?',
+                text: 'Are you sure you wish to end your curated session?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Leave',
+                cancelButtonText: 'Stay',
+                iconColor: 'var(--color-ink-black)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (formId) {
+                        document.getElementById(formId).submit();
+                    } else {
+                        // Fallback search for any logout form
+                        const form = document.querySelector('form[action*="logout"]');
+                        if (form) form.submit();
+                    }
+                }
+            });
+        }
     </script>
     <script> // Global Backdrop & Scroll Lock Reaper
         // Ensures the page never gets stuck in a "dark/disabled" state
@@ -561,6 +662,26 @@
             }
         });
     </script>
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('trigger-confirm', (data) => {
+                Swal.fire({
+                    ...softSwal,
+                    title: data.title || 'Are you sure?',
+                    text: data.text || '',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: data.confirmButtonText || 'Confirm',
+                    cancelButtonText: data.cancelButtonText || 'Cancel',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Livewire.dispatch(data.method, data.params || {});
+                    }
+                });
+            });
+        });
+    </script>
+    @livewireScripts
 </body>
 
 </html>

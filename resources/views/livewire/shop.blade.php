@@ -52,6 +52,16 @@
                     @endforeach
                 </div>
 
+                <h6 class="text-uppercase extra-small ls-2 fw-bold mb-4 opacity-75">Curated Collections</h6>
+                <div class="d-flex flex-column gap-2 mb-5">
+                    @foreach($categories as $category)
+                        <button wire:click="$set('categoryId', {{ $categoryId == $category->id ? 'null' : $category->id }})"
+                            class="btn btn-sm text-start px-4 py-3 rounded-pill transition-premium {{ $categoryId == $category->id ? 'bg-dark text-white shadow-lg' : 'bg-light text-dark hover-bg-light-dark' }}">
+                            {{ $category->name }}
+                        </button>
+                    @endforeach
+                </div>
+
                 <h6 class="text-uppercase extra-small ls-2 fw-bold mb-4 opacity-75">Investment Range</h6>
                 <div class="d-flex flex-column gap-2 mb-5">
                     @foreach(['accessible' => 'Daily Luxury', 'aspirational' => 'Aspirational', 'luxury' => 'Investment'] as $tier => $label)
@@ -126,7 +136,7 @@
 
             @if($products->hasPages())
                 <div class="mt-5 d-flex justify-content-center">
-                    {{ $products->links('pagination::bootstrap-5') }}
+                    {{ $products->links() }}
                 </div>
             @endif
         </div>

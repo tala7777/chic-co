@@ -29,7 +29,10 @@ class Cart extends Component
                 'item_id' => $item->id,
                 'id' => $item->product_id,
                 'name' => $item->product->name,
-                'price' => $item->product->price,
+                'price' => $item->product->discounted_price,
+                'original_price' => $item->product->price,
+                'has_discount' => $item->product->hasDiscount(),
+                'discount_percentage' => $item->product->effective_discount,
                 'image' => $item->product->image ?? ($item->product->images->first()?->url ?? asset('images/placeholder.jpg')),
                 'size' => $item->size,
                 'color' => $item->color,
@@ -77,6 +80,11 @@ class Cart extends Component
             $this->updateCart();
             $this->dispatch('cart-updated');
         }
+    }
+
+    public function checkout()
+    {
+        return redirect()->route('checkout');
     }
 
     public function calculateTotal()

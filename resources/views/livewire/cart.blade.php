@@ -64,7 +64,16 @@ t<div class="container py-5 animate-fade-in" style="min-height: 70vh;">
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="py-4 fw-medium">{{ number_format((float) $item['price'], 0) }} JOD</td>
+                                            <td class="py-4 fw-medium">
+                                                @if(isset($item['has_discount']) && $item['has_discount'])
+                                                    <div class="d-flex flex-column">
+                                                        <span class="text-dark">{{ number_format((float) $item['price'], 0) }} JOD</span>
+                                                        <span class="text-muted text-decoration-line-through extra-small">{{ number_format((float) $item['original_price'], 0) }} JOD</span>
+                                                    </div>
+                                                @else
+                                                    {{ number_format((float) $item['price'], 0) }} JOD
+                                                @endif
+                                            </td>
                                             <td class="py-4">
                                                 <div class="d-flex align-items-center border rounded-pill px-2 py-1"
                                                     style="width: fit-content;">
@@ -131,8 +140,9 @@ t<div class="container py-5 animate-fade-in" style="min-height: 70vh;">
                                 <p class="text-danger extra-small text-center opacity-75">Some items in your bag are currently
                                     unavailable.</p>
                             @else
-                                <a href="{{ route('checkout') }}"
-                                    class="btn btn-dark py-3 rounded-pill text-uppercase ls-1 fw-bold">Proceed to Checkout</a>
+                                <button wire:click="checkout"
+                                    class="btn btn-dark py-3 rounded-pill text-uppercase ls-1 fw-bold">Proceed to
+                                    Checkout</button>
                             @endif
                         </div>
 

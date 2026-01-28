@@ -74,6 +74,16 @@ class ProductDetail extends Component
         ]);
 
         try {
+            $stock = $this->getStockForSelectedColor();
+            if ($stock <= 0) {
+                $this->dispatch('swal:error', [
+                    'title' => 'Stock Exhausted',
+                    'text' => 'This color version is currently unavailable.',
+                    'icon' => 'warning'
+                ]);
+                return;
+            }
+
             $cartService = new \App\Services\CartService();
             $cartService->add($this->product->id, 1, $this->selectedSize, $this->selectedColor);
 
@@ -83,6 +93,14 @@ class ProductDetail extends Component
             \Log::error('ProductDetail AddToCart Error: ' . $e->getMessage());
             $this->dispatch('swal:error', ['title' => 'Error', 'text' => 'Could not update your bag.']);
         }
+    }
+
+    public function getStockForSelectedColor()
+    {
+        if (!$this->selectedColor || !isset($this->product->color_stock[$this->selectedColor])) {
+            return $this->product->stock;
+        }
+        return (int) $this->product->color_stock[$this->selectedColor];
     }
 
     public function render()

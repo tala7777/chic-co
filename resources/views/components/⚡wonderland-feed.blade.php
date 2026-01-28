@@ -102,9 +102,11 @@ new class extends Component {
             <div class="col-6 col-lg-3 animate-fade-in" style="animation-delay: {{ $loop->index * 0.05 }}s">
                 <div class="card card-custom product-card h-100">
                     <div class="position-relative overflow-hidden" style="padding-top: 135%;">
-                        <img src="{{ $product->image }}"
-                            class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover transition-all"
-                            alt="{{ $product->name }}">
+                        <a href="{{ route('shop.show', $product->id) }}" class="d-block w-100 h-100">
+                            <img src="{{ $product->image }}"
+                                class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover transition-all"
+                                alt="{{ $product->name }}">
+                        </a>
 
                         <!-- Aesthetic Badge -->
                         <div class="aesthetic-badge aesthetic-{{ $product->aesthetic }}">
@@ -128,7 +130,12 @@ new class extends Component {
                     <div class="card-body p-3">
                         <small class="text-muted text-uppercase fw-bold"
                             style="font-size: 0.65rem; letter-spacing: 0.5px;">{{ $product->brand_name }}</small>
-                        <h6 class="card-title mt-1 mb-2 text-truncate">{{ $product->name }}</h6>
+                        <h6 class="card-title mt-1 mb-2 text-truncate">
+                            <a href="{{ route('shop.show', $product->id) }}"
+                                class="text-dark text-decoration-none hover-gold transition-all">
+                                {{ $product->name }}
+                            </a>
+                        </h6>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold fs-5">{{ number_format($product->price, 0) }} JOD</span>
                         </div>
@@ -164,10 +171,20 @@ new class extends Component {
                             <!-- Main Item -->
                             <div class="col-md-4">
                                 <div class="text-center">
-                                    <img src="{{ $currentComplementarySet['main']['image'] }}"
-                                        class="img-fluid rounded-4 shadow-sm mb-3">
-                                    <h6 class="mb-0">{{ $currentComplementarySet['main']['name'] }}</h6>
-                                    <span class="fw-bold">{{ $currentComplementarySet['main']['price'] }} JOD</span>
+                                    <a href="{{ route('shop.show', $currentComplementarySet['main']['id']) }}"
+                                        class="d-block">
+                                        <img src="{{ $currentComplementarySet['main']['image'] }}"
+                                            class="img-fluid rounded-4 shadow-sm mb-3 hover-lift transition-all">
+                                    </a>
+                                    <h6 class="mb-0">
+                                        <a href="{{ route('shop.show', $currentComplementarySet['main']['id']) }}"
+                                            class="text-dark text-decoration-none">
+                                            {{ $currentComplementarySet['main']['name'] ?? 'Main Item' }}
+                                        </a>
+                                    </h6>
+                                    <span
+                                        class="fw-bold">{{ number_format($currentComplementarySet['main']['price'] ?? 0, 2) }}
+                                        JOD</span>
                                 </div>
                             </div>
 
@@ -181,9 +198,17 @@ new class extends Component {
                                     @foreach($currentComplementarySet['complements'] as $comp)
                                         <div class="col-4">
                                             <div class="text-center">
-                                                <img src="{{ $comp->image }}" class="img-fluid rounded-3 shadow-sm mb-2">
-                                                <small class="d-block text-truncate">{{ $comp->name }}</small>
-                                                <small class="fw-bold">{{ $comp->price }} JOD</small>
+                                                <a href="{{ route('shop.show', $comp->id) }}" class="d-block">
+                                                    <img src="{{ $comp->image }}"
+                                                        class="img-fluid rounded-3 shadow-sm mb-2 hover-lift transition-all">
+                                                </a>
+                                                <small class="d-block text-truncate">
+                                                    <a href="{{ route('shop.show', $comp->id) }}"
+                                                        class="text-dark text-decoration-none">
+                                                        {{ $comp->name }}
+                                                    </a>
+                                                </small>
+                                                <small class="fw-bold">{{ number_format($comp->price, 2) }} JOD</small>
                                             </div>
                                         </div>
                                     @endforeach

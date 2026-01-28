@@ -21,12 +21,9 @@ class AppServiceProvider extends ServiceProvider
     {
         \Illuminate\Pagination\Paginator::useBootstrapFive();
 
-        // \Livewire\Livewire::setUpdateRoute(function ($handle) {
-        //     return \Illuminate\Support\Facades\Route::post('/livewire/update', $handle);
-        // });
-
-        // \Livewire\Livewire::setScriptRoute(function ($handle) {
-        //     return \Illuminate\Support\Facades\Route::get('/livewire/livewire.js', $handle);
-        // });
+        // Ensure session is initialized for guest users (data will be saved by middleware)
+        if (!app()->runningInConsole() && !session()->has('active')) {
+            session()->put('active', true);
+        }
     }
 }

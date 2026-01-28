@@ -56,16 +56,19 @@
                                     {{ $product->aesthetic }} Curator's Pick
                                 </span>
                                 <h1 class="display-3 font-heading fw-bold mb-4" style="letter-spacing: -1px;">
-                                    {{ $product->name }}</h1>
+                                    {{ $product->name }}
+                                </h1>
                                 <p class="text-muted fs-5 leading-relaxed mb-5" style="opacity: 0.8;">
-                                    {{ $product->description }}</p>
+                                    {{ $product->description }}
+                                </p>
 
                                 <div class="d-flex align-items-center justify-content-between pt-4 border-top border-light">
                                     <div>
                                         <span class="text-muted extra-small text-uppercase ls-1 d-block mb-1">Market
                                             Value</span>
                                         <h2 class="fw-bold mb-0" style="color: var(--color-ink-black);">
-                                            {{ number_format($product->price, 0) }} JOD</h2>
+                                            {{ number_format($product->price, 0) }} JOD
+                                        </h2>
                                     </div>
                                     <button wire:click="addToCart({{ $product->id }})"
                                         class="btn btn-dark rounded-pill px-5 py-3 fw-bold text-uppercase ls-1 shadow-lg hover-scale">
@@ -106,7 +109,7 @@
 
     @if($products->count() > 0)
         <div class="mt-5 d-flex justify-content-center pt-5">
-            {{ $products->links('pagination::bootstrap-5') }}
+            {{ $products->links() }}
         </div>
     @endif
 

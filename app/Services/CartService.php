@@ -14,8 +14,12 @@ class CartService
      */
     public function getVisitorId()
     {
-        // Use standard session ID which is now database-backed and stable
-        return session()->getId();
+        if (!session()->has('cart_visitor_id')) {
+            session()->put('cart_visitor_id', (string) Str::uuid());
+            session()->save();
+        }
+
+        return session()->get('cart_visitor_id');
     }
 
     /**
@@ -98,7 +102,7 @@ class CartService
     public function getSubtotal()
     {
         return $this->getItems()->sum(function ($item) {
-            return ($item->product->price ?? 0) * $item->quantity;
+            return ($item->product->discounted_price ?? 0) * $item->quantity;
         });
     }
 

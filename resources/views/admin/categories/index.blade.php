@@ -42,6 +42,8 @@
                                 </th>
                                 <th class="py-3 border-0 text-uppercase extra-small text-muted fw-bold ls-1 text-center">
                                     Inventory Count</th>
+                                <th class="py-3 border-0 text-uppercase extra-small text-muted fw-bold ls-1 text-center">
+                                    Global Discount</th>
                                 <th class="pe-4 py-3 border-0 text-end text-uppercase extra-small text-muted fw-bold ls-1">
                                     Actions</th>
                             </tr>
@@ -63,6 +65,15 @@
                                         <span class="badge bg-light text-dark border rounded-pill px-3 py-2 small">
                                             {{ $category->products_count ?? $category->products()->count() }} items
                                         </span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if($category->discount_percentage > 0)
+                                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-2 small">
+                                                -{{ (float) $category->discount_percentage }}%
+                                            </span>
+                                        @else
+                                            <span class="text-muted opacity-50 small">—</span>
+                                        @endif
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="d-flex justify-content-end gap-2">
@@ -98,7 +109,7 @@
             </div>
             @if($categories->hasPages())
                 <div class="card-footer bg-white py-4 border-0 d-flex justify-content-center">
-                    {{ $categories->links('pagination::bootstrap-5') }}
+                    {{ $categories->links() }}
                 </div>
             @endif
         </div>

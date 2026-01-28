@@ -17,6 +17,7 @@
 
     <!-- Scripts and CSS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -316,6 +317,13 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{{ route('admin.personas.index') }}" wire:navigate
+                    class="nav-link {{ request()->is('admin/personas*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Persona Rewards</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{{ route('admin.orders.index') }}" wire:navigate
                     class="nav-link {{ request()->is('admin/orders*') ? 'active' : '' }}">
                     <i class="fa-solid fa-receipt"></i>
@@ -350,15 +358,14 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('logout') }}" class="nav-link logout-link"
-                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <a href="javascript:void(0)" class="nav-link logout-link" onclick="confirmLogout('logout-form-admin')">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <span>Sign Out</span>
                 </a>
             </li>
         </ul>
 
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+        <form id="logout-form-admin" action="{{ route('logout') }}" method="POST" class="d-none">
             @csrf
         </form>
     </div>
@@ -372,78 +379,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- SweetAlert2 Handlers -->
-    <script>
-        const softSwal = {
-            confirmButtonColor: '#F6A6B2',
-            background: '#FDFBFA',
-            color: '#1E1E1E',
-            customClass: {
-                popup: 'soft-alert-popup',
-                title: 'soft-alert-title',
-                confirmButton: 'soft-alert-button'
-            }
-        };
-
-        window.addEventListener('swal:success', event => {
-            const data = event.detail[0];
-            Swal.fire({
-                ...softSwal,
-                title: data.title,
-                text: data.text,
-                icon: 'success',
-                iconColor: '#F6A6B2'
-            });
-        });
-
-        window.addEventListener('swal:error', event => {
-            const data = event.detail[0];
-            Swal.fire({
-                ...softSwal,
-                title: data.title,
-                text: data.text,
-                icon: 'error',
-                confirmButtonColor: '#1E1E1E'
-            });
-        });
-
-        function confirmDelete(id, method, title = 'Are you sure?', text = "You won't be able to revert this!") {
-            Swal.fire({
-                ...softSwal,
-                title: title,
-                text: text,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#1E1E1E',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Logic handled via AlpineJS wrapper below
-                }
-            });
-        }
-
-        // AlpineJS Helper for Confirmation
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('confirmAction', () => ({
-                confirm(method, params, title, text) {
-                    Swal.fire({
-                        ...softSwal,
-                        title: title || 'Are you sure?',
-                        text: text || "This action cannot be undone.",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Yes, proceed',
-                        cancelButtonText: 'Cancel'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            this.$wire[method](params);
-                        }
-                    });
-                }
-            }));
-        });
-    </script>
 
     <style>
         .animate-fade-in {
@@ -468,8 +403,143 @@
             --color-ink-black: #1E1E1E;
             --color-warm-ivory: #FDFBFA;
         }
+
+        /* Premium Pagination Styling */
+        .pagination {
+            gap: 8px;
+            border: none;
+        }
+
+        .page-item {
+            border: none;
+        }
+
+        .page-link {
+            border: 1px solid rgba(0, 0, 0, 0.05) !important;
+            color: var(--color-ink-black) !important;
+            border-radius: 12px !important;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #fff;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .page-link:hover {
+            background: #f8f9fa !important;
+            color: var(--color-primary-blush) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-color: var(--color-primary-blush) !important;
+        }
+
+        .page-item.active .page-link {
+            background: var(--color-ink-black) !important;
+            border-color: var(--color-ink-black) !important;
+            color: #fff !important;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-item.disabled .page-link {
+            background: transparent !important;
+            color: #ccc !important;
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
     </style>
 
+    <script>
+        const softSwal = {
+            confirmButtonColor: 'var(--color-ink-black)',
+            cancelButtonColor: 'var(--color-secondary-mauve)',
+            background: '#ffffff',
+            color: 'var(--color-ink-black)',
+            customClass: {
+                popup: 'rounded-5 shadow-lg p-4 border-0',
+                title: 'font-heading fw-bold fs-3',
+                confirmButton: 'btn btn-dark rounded-pill px-4 py-2 border-0 me-2',
+                cancelButton: 'btn btn-outline-secondary rounded-pill px-4 py-2 border-0'
+            },
+            buttonsStyling: false
+        };
+
+        const getSwalData = (event) => {
+            if (event.detail && typeof event.detail === 'object') {
+                return Array.isArray(event.detail) ? event.detail[0] : event.detail;
+            }
+            return {};
+        };
+
+        window.addEventListener('swal:success', event => {
+            const data = getSwalData(event);
+            Swal.fire({
+                ...softSwal,
+                title: data.title || 'Success',
+                text: data.text || '',
+                icon: 'success',
+                iconColor: 'var(--color-primary-blush)'
+            });
+        });
+
+        window.addEventListener('swal:confirm', event => {
+            const data = getSwalData(event);
+            Swal.fire({
+                ...softSwal,
+                title: data.title || 'Are you sure?',
+                text: data.text || '',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: data.confirmButtonText || 'Confirm',
+                cancelButtonText: data.cancelButtonText || 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (data.method) {
+                        Livewire.dispatch(data.method, data.params || {});
+                    }
+                }
+            });
+        });
+
+        function confirmLogout(formId) {
+            Swal.fire({
+                ...softSwal,
+                title: 'Depart Curiosity?',
+                text: 'Are you sure you wish to end your curated session?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Leave',
+                cancelButtonText: 'Stay',
+                iconColor: 'var(--color-primary-blush)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('confirmAction', () => ({
+                confirm(method, params, title, text) {
+                    Swal.fire({
+                        ...softSwal,
+                        title: title || 'Are you sure?',
+                        text: text || "This action cannot be undone.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, proceed',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.$wire[method](params);
+                        }
+                    });
+                }
+            }));
+        });
+    </script>
+    @livewireScripts
 </body>
 
 </html>

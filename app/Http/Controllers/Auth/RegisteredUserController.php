@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use App\Services\CartService;
 
 class RegisteredUserController extends Controller
 {
@@ -40,6 +41,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('sparkle.quiz');
+        // Migrate guest cart items to the user's account
+        $cartService = new CartService();
+        $cartService->migrateGuestCartToUser($user->id);
+
+        return redirect()->intended(route('sparkle.quiz'));
     }
 }

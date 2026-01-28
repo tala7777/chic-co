@@ -4,7 +4,7 @@
 
     <!-- Image Wrapper -->
     <div class="img-shadow-overlay overflow-hidden position-relative rounded-4 bg-light" style="aspect-ratio: 3/4;">
-        <a href="{{ url('/shop/' . $product['id']) }}" class="d-block w-100 h-100">
+        <a href="{{ route('shop.show', $product['id']) }}" class="d-block w-100 h-100">
             <img src="{{ $product['image'] ?? 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop' }}"
                 alt="{{ $product['name'] }}"
                 class="w-100 h-100 object-fit-cover transition-premium group-hover-scale {{ ($product['stock'] ?? 1) <= 0 ? 'grayscale opacity-75' : '' }}">
@@ -22,6 +22,9 @@
             @if(($product['stock'] ?? 1) <= 0)
                 <span class="badge bg-white text-dark shadow-sm text-uppercase ls-1 fw-bold border"
                     style="font-size: 0.6rem;">Sold Out</span>
+            @elseif(is_object($product) && $product->hasDiscount())
+                <span class="badge bg-danger shadow-sm text-uppercase ls-1 fw-bold border-0"
+                    style="font-size: 0.6rem;">-{{ (float) $product->effective_discount }}%</span>
             @endif
         </div>
 
@@ -30,7 +33,7 @@
             <livewire:wishlist-button :productId="$product['id']" :wire:key="'wishlist-'.$product['id']"
                 class="btn-quick" />
 
-            <a href="{{ url('/shop/' . $product['id']) }}" class="btn-quick text-decoration-none" title="View">
+            <a href="{{ route('shop.show', $product['id']) }}" class="btn-quick text-decoration-none" title="View">
                 <i class="fa-regular fa-eye"></i>
             </a>
         </div>
@@ -39,14 +42,32 @@
     <!-- Content -->
     <div class="pt-4 pb-2 text-center px-2">
         <h3 class="h6 font-heading fw-bold mb-1 text-dark text-truncate">
-            <a href="{{ url('/shop/' . $product['id']) }}" class="text-dark text-decoration-none">
+            <a href="{{ route('shop.show', $product['id']) }}" class="text-dark text-decoration-none">
                 {{ $product['name'] }}
             </a>
         </h3>
 
-        <p class="small text-muted mb-3" style="color: var(--color-warm-gold) !important; font-weight: 500;">
-            {{ number_format($product['price'], 2) }} JOD
-        </p>
+        <div class="d-flex flex-column align-items-center mb-3">
+            @if(is_object($product) && $product->hasDiscount())
+                <div class="d-flex align-items-center gap-2">
+                    <span class="small fw-bold text-dark" style="color: var(--color-ink-black) !important;">
+                        {{ number_format($product->discounted_price, 0) }} JOD
+                    </span>
+                    <span class="extra-small text-muted text-decoration-line-through">
+                        {{ number_format($product->price, 0) }} JOD
+                    </span>
+                </div>
+            @elseif(isset($product['discount_percentage']) && $product['discount_percentage'] > 0)
+                {{-- Handle array case if needed or just fallback --}}
+                <p class="small text-muted mb-0" style="color: var(--color-warm-gold) !important; font-weight: 500;">
+                    {{ number_format($product['price'], 2) }} JOD
+                </p>
+            @else
+                <p class="small text-muted mb-0" style="color: var(--color-warm-gold) !important; font-weight: 500;">
+                    {{ number_format($product['price'] ?? 0, 2) }} JOD
+                </p>
+            @endif
+        </div>
 
         <!-- Add to Bag Button -->
         @if(($product['stock'] ?? 1) > 0)

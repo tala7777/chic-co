@@ -95,9 +95,16 @@
                     <span class="text-muted extra-small text-uppercase ls-2 fw-bold mb-2 d-block opacity-50">SKU: CP-{{ str_pad($product->id, 5, '0', STR_PAD_LEFT) }}</span>
                     <h1 class="font-heading fw-bold mb-2 display-6" style="letter-spacing: -1px;">{{ $product->name }}</h1>
                     <div class="d-flex align-items-center gap-3 mt-2">
-                        <span class="h3 mb-0 fw-bold font-heading text-dark">{{ number_format($product->price, 0) }} JOD</span>
-                        @if($product->stock <= 0)
-                            <span class="badge bg-soft-blush text-primary rounded-pill px-3 py-1 text-uppercase fw-bold" style="font-size: 0.6rem;">Out of Stock</span>
+                        @if($product->hasDiscount())
+                            <span class="h3 mb-0 fw-bold font-heading text-dark">{{ number_format($product->discounted_price, 0) }} JOD</span>
+                            <span class="text-muted text-decoration-line-through small">{{ number_format($product->price, 0) }} JOD</span>
+                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1 text-uppercase fw-bold" style="font-size: 0.6rem;">-{{ (float)$product->effective_discount }}% Exclusive</span>
+                        @else
+                            <span class="h3 mb-0 fw-bold font-heading text-dark">{{ number_format($product->price, 0) }} JOD</span>
+                        @endif
+                        
+                        @if($this->getStockForSelectedColor() <= 0)
+                            <span class="badge bg-soft-blush text-primary rounded-pill px-3 py-1 text-uppercase fw-bold" style="font-size: 0.6rem;">Sold Out for this Color</span>
                         @endif
                     </div>
                 </div>
@@ -147,7 +154,7 @@
 
                 <!-- Bag & Wish Actions -->
                 <div class="d-flex gap-3 mb-5">
-                    @if($product->stock > 0)
+                    @if($this->getStockForSelectedColor() > 0)
                         <button wire:click="addToCart" 
                                 class="btn btn-dark btn-lg py-4 flex-grow-1 rounded-pill text-uppercase ls-2 fw-bold shadow-lg transition-premium">
                              <i class="fa-solid fa-bag-shopping me-3"></i> Add to Bag

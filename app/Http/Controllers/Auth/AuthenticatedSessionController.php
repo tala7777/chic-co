@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Services\CartService;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -36,6 +37,10 @@ class AuthenticatedSessionController extends Controller
 
         // Redirect based on user role and persona
         $user = Auth::user();
+
+        // Migrate guest cart items to the user's account
+        $cartService = new CartService();
+        $cartService->migrateGuestCartToUser($user->id);
 
         if ($user->role === 'admin') {
             return redirect()->intended(route('admin.dashboard'));

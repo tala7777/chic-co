@@ -24,6 +24,8 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|min:2|unique:categories,name',
+            'discount_percentage' => 'nullable|numeric|min:0|max:100',
+            'image' => 'nullable|url',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -46,6 +48,8 @@ class CategoryController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|min:2|unique:categories,name,' . $id,
+            'discount_percentage' => 'nullable|numeric|min:0|max:100',
+            'image' => 'nullable|url',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);

@@ -3,7 +3,6 @@
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ShopController;
 use App\Http\Controllers\EnterSessionController;
 use App\Livewire\Shop;
 use App\Livewire\Cart;
@@ -86,18 +85,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('dashboard');
 
     // Inventory Management
-    Route::resource('categories', CategoryController::class);
+    Route::get('/categories', \App\Livewire\Admin\CategoryManager::class)->name('categories.index');
+    Route::resource('categories', CategoryController::class)->except(['index']);
+
     Route::get('products/trash', [ProductController::class, 'trash'])->name('products.trash');
     Route::put('products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
-    // Livewire Manager for Index/Create/Edit/Destroy (managed via sidebars in the component)
     Route::get('/products', \App\Livewire\Admin\ProductManager::class)->name('products.index');
-    // Keep specialized resource routes if needed, but Manager handles most.
-    // For now, we will comment out the resource to avoid conflict and see if Manager covers it.
-    // Route::resource('products', ProductController::class);
 
     // Business Intelligence & Operations
     Route::get('/orders', \App\Livewire\Admin\OrderManager::class)->name('orders.index');
     Route::get('/users', \App\Livewire\Admin\UserManager::class)->name('users.index');
+    Route::get('/personas', \App\Livewire\Admin\PersonaManager::class)->name('personas.index');
     Route::get('/reviews', \App\Livewire\Admin\ReviewManager::class)->name('reviews.index');
 
     // Account Management

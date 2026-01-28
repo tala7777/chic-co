@@ -32,6 +32,8 @@ class Product extends Model
         'occasions',
         'colors',
         'sizes',
+        'color_stock',
+        'discount_percentage',
     ];
 
     protected function casts(): array
@@ -40,6 +42,7 @@ class Product extends Model
             'occasions' => 'array',
             'colors' => 'array',
             'sizes' => 'array',
+            'color_stock' => 'array',
         ];
     }
 
@@ -81,5 +84,34 @@ class Product extends Model
     public function averageRating()
     {
         return $this->reviews()->avg('rating');
+    }
+
+    public function getEffectiveDiscountAttribute()
+    {
+        $productDiscount = (float) $this->discount_percentage;
+        $categoryDiscount = (float) ($this->category->discount_percentage ?? 0);
+
+        // Persona discount
+        $personaDiscount = 0;
+        if ($this->aesthetic) {
+            $personaDiscount = (float) (PersonaDiscount::where('aesthetic', $this->aesthetic)->first()->discount_percentage ?? 0);
+        }
+
+        return max($productDiscount, $categoryDiscount, $personaDiscount);
+    }
+
+    public function getDiscountedPriceAttribute()
+    {
+        $discount = $this->effective_discount;
+        if ($discount <= 0) {
+            return $this->price;
+        }
+
+        return $this->price * (1 - ($discount / 100));
+    }
+
+    public function hasDiscount()
+    {
+        return $this->effective_discount > 0;
     }
 }

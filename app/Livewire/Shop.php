@@ -29,6 +29,9 @@ class Shop extends Component
     #[Url(as: 'search')]
     public $search = '';
 
+    #[Url(as: 'category')]
+    public $categoryId = null;
+
     protected $paginationTheme = 'bootstrap';
 
     public function updatedSearch()
@@ -99,6 +102,10 @@ class Shop extends Component
 
         if ($this->color) {
             $query->whereJsonContains('colors', $this->color);
+        }
+
+        if ($this->categoryId) {
+            $query->where('category_id', $this->categoryId);
         }
 
         if ($this->search) {

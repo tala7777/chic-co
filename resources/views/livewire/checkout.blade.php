@@ -8,7 +8,7 @@
     <div class="row g-5">
         <!-- Main Checkout Column -->
         <div class="col-lg-8">
-            <form wire:submit.prevent="placeOrder">
+            <form wire:submit.prevent="confirmOrder">
 
                 <!-- 1. Contact Info -->
                 <div class="checkout-section mb-5">

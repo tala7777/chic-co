@@ -208,7 +208,7 @@
         </div>
         @if($users->count() > 0)
             <div class="card-footer bg-white py-4 border-0 d-flex justify-content-center">
-                {{ $users->links('pagination::bootstrap-5') }}
+                {{ $users->links() }}
             </div>
         @endif
     </div>
