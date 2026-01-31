@@ -61,6 +61,15 @@ Route::get('/checkout/success/{order}', function (\App\Models\Order $order) {
     return view('checkout.success', compact('order'));
 })->name('checkout.success');
 
+// Stripe Payments
+Route::prefix('stripe')->name('stripe.')->group(function () {
+    Route::post('/payment-intent', [\App\Http\Controllers\StripeController::class, 'createPaymentIntent'])->name('payment-intent');
+    Route::get('/success', [\App\Http\Controllers\StripeController::class, 'handleSuccess'])->name('success');
+    Route::get('/cancel', [\App\Http\Controllers\StripeController::class, 'handleCancel'])->name('cancel');
+    Route::post('/webhook', [\App\Http\Controllers\StripeController::class, 'handleWebhook'])->name('webhook');
+    Route::post('/refund', [\App\Http\Controllers\StripeController::class, 'createRefund'])->middleware(['auth', 'admin'])->name('refund');
+});
+
 // Authenticated User Universe
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {

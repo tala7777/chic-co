@@ -37,6 +37,13 @@ class ProductDetail extends Component
             ]);
         }
 
+        // Century Analytics
+        try {
+            $century = new \App\Services\CenturyService();
+            $century->trackProductView($this->product);
+        } catch (\Exception $e) {
+        }
+
         // Get recommendations via Style Service
         $styleService = new StyleRecommendationService();
         $this->recommendations = $styleService->getRecommendations(collect([$this->product]), 4);
