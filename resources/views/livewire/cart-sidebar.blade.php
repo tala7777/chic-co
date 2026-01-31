@@ -43,10 +43,10 @@
                                 </div>
 
                                 <div class="d-flex align-items-center">
-                                    <div class="input-group input-group-sm" style="width: 100px;">
-                                        <button class="btn btn-outline-light text-dark border" wire:click="decrement({{ $item['item_id'] }})">-</button>
-                                        <input type="text" class="form-control text-center bg-white border-top border-bottom border-light" value="{{ $item['quantity'] }}" readonly>
-                                        <button class="btn btn-outline-light text-dark border" wire:click="increment({{ $item['item_id'] }})" @if($item['out_of_stock']) disabled @endif>+</button>
+                                    <div class="d-flex align-items-center border rounded-pill px-2 py-1" style="width: fit-content; max-width: 120px;">
+                                        <button class="btn btn-link text-dark p-0 px-2 text-decoration-none quantity-btn-sidebar" wire:click="decrement({{ $item['item_id'] }})">-</button>
+                                        <span class="px-2 fw-bold" style="font-size: 0.9rem; min-width: 25px; text-align: center;">{{ $item['quantity'] }}</span>
+                                        <button class="btn btn-link text-dark p-0 px-2 text-decoration-none quantity-btn-sidebar" wire:click="increment({{ $item['item_id'] }})" @if($item['out_of_stock']) disabled @endif>+</button>
                                     </div>
                                 </div>
                             </div>
@@ -106,4 +106,23 @@
             </div>
         @endif
     </div>
+
+    <style>
+        .quantity-btn-sidebar {
+            opacity: 1 !important;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-btn-sidebar:hover {
+            transform: scale(1.2);
+            color: #000 !important;
+        }
+
+        .quantity-btn-sidebar:disabled {
+            opacity: 0.5 !important;
+            cursor: not-allowed;
+        }
+    </style>
 </div>

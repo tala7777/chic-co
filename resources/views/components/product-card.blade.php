@@ -4,10 +4,26 @@
 
     <!-- Image Wrapper -->
     <div class="img-shadow-overlay overflow-hidden position-relative rounded-4 bg-light" style="aspect-ratio: 3/4;">
-        <a href="{{ route('shop.show', $product['id']) }}" class="d-block w-100 h-100">
+        <a href="{{ route('shop.show', $product['id']) }}" class="d-block w-100 h-100 position-relative">
+            <!-- Primary Image -->
             <img src="{{ $product['image'] ?? 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop' }}"
                 alt="{{ $product['name'] }}"
-                class="w-100 h-100 object-fit-cover transition-premium group-hover-scale {{ ($product['stock'] ?? 1) <= 0 ? 'grayscale opacity-75' : '' }}">
+                class="w-100 h-100 object-fit-cover transition-premium product-img-primary {{ ($product['stock'] ?? 1) <= 0 ? 'grayscale opacity-75' : '' }}">
+
+            <!-- Secondary Hover Image -->
+            @php
+                $secondaryImage = null;
+                if (is_object($product) && $product->images->count() > 1) {
+                    $secondaryImage = $product->images->skip(1)->first()?->url;
+                } elseif (isset($product['images']) && count($product['images']) > 1) {
+                    $secondaryImage = $product['images'][1]['url'] ?? null;
+                }
+            @endphp
+
+            @if($secondaryImage)
+                <img src="{{ $secondaryImage }}" alt="{{ $product['name'] }} - Detail"
+                    class="w-100 h-100 object-fit-cover transition-premium position-absolute top-0 start-0 product-img-secondary opacity-0">
+            @endif
         </a>
 
         <!-- Badges -->
@@ -30,9 +46,6 @@
 
         <!-- Quick Actions (Hover) -->
         <div class="quick-actions opacity-0 group-hover-opacity-100 transition-premium mb-3">
-            <livewire:wishlist-button :productId="$product['id']" :wire:key="'wishlist-'.$product['id']"
-                class="btn-quick" />
-
             <a href="{{ route('shop.show', $product['id']) }}" class="btn-quick text-decoration-none" title="View">
                 <i class="fa-regular fa-eye"></i>
             </a>
@@ -69,17 +82,24 @@
             @endif
         </div>
 
-        <!-- Add to Bag Button -->
-        @if(($product['stock'] ?? 1) > 0)
-            <button @click="Livewire.dispatch('quick-add-to-cart', { productId: {{ $product['id'] }} })"
-                class="btn btn-primary-custom w-100 rounded-pill py-2 extra-small text-uppercase fw-bold ls-1 shadow-sm transition-premium hover-translate-up">
-                Add to Bag
-            </button>
-        @else
-            <button disabled
-                class="btn btn-outline-secondary w-100 rounded-pill py-2 extra-small text-uppercase fw-bold ls-1 border-0 bg-light text-muted">
-                Unavailable
-            </button>
-        @endif
+        <!-- Add to Bag & Wishlist -->
+        <div class="d-flex gap-2 align-items-center">
+            @if(($product['stock'] ?? 1) > 0)
+                <button @click="Livewire.dispatch('quick-add-to-cart', { productId: {{ $product['id'] }} })"
+                    class="btn btn-primary-custom flex-grow-1 rounded-pill py-2 small text-uppercase fw-bold ls-1 shadow-sm transition-premium hover-translate-up"
+                    style="font-size: 0.65rem; padding: 8px 16px !important;">
+                    Add to Bag
+                </button>
+            @else
+                <button disabled
+                    class="btn btn-outline-secondary flex-grow-1 rounded-pill py-2 extra-small text-uppercase fw-bold ls-1 border-0 bg-light text-muted">
+                    Unavailable
+                </button>
+            @endif
+
+            <livewire:wishlist-button :productId="$product['id']" :wire:key="'wishlist-btn-'.$product['id']"
+                class="btn rounded-circle d-flex align-items-center justify-content-center transition-premium wishlist-card-btn"
+                style="width: 38px; height: 38px; border: 1px solid #EDEDED;" />
+        </div>
     </div>
 </div>

@@ -60,6 +60,11 @@
             --transition-premium: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
+        html {
+            font-size: 80%;
+            /* Primary scale adjustment */
+        }
+
         body {
             font-family: var(--font-body);
             color: var(--color-ink-black);
@@ -67,7 +72,7 @@
             cursor: default;
             overflow-x: hidden !important;
             line-height: 1.7;
-            font-size: 1.05rem;
+            /* Remove explicit 1.05rem if we want the 80% html scale to work uniformly */
         }
 
         /* Breadcrumb Alignment Fix */
@@ -303,6 +308,21 @@
             gap: 10px;
             z-index: 20;
             padding: 0 15px;
+        }
+
+        .product-img-primary,
+        .product-img-secondary {
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .product-card:hover .product-img-primary {
+            transform: scale(1.1);
+            opacity: 0.7;
+        }
+
+        .product-card:hover .product-img-secondary {
+            opacity: 1 !important;
+            transform: scale(1.05);
         }
 
         .btn-quick {
@@ -680,6 +700,47 @@
                 });
             });
         });
+    </script>
+    <!-- Custom Toast Container -->
+    <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999; pointer-events: none;">
+    </div>
+
+    <script>
+        window.addEventListener('show-toast', event => {
+            const data = event.detail.length ? event.detail[0] : event.detail;
+            showToast(data.message, data.type);
+        });
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            // Premium aesthetics
+            const baseClasses = 'toast show d-flex align-items-center border-0 shadow-lg rounded-4 mb-3 animate-fade-up';
+            const bgClass = type === 'success' ? 'bg-white text-dark' : 'bg-dark text-white';
+            const icon = type === 'success' ? '<i class="fa-solid fa-heart text-danger fs-5"></i>' : '<i class="fa-solid fa-info-circle fs-5"></i>';
+            const borderColor = type === 'success' ? 'border-left: 4px solid var(--color-primary-blush);' : 'border-left: 4px solid #fff;';
+
+            toast.className = `${baseClasses} ${bgClass}`;
+            toast.style.cssText = `min-width: 300px; ${borderColor} pointer-events: auto;`;
+
+            toast.innerHTML = `
+                <div class="toast-body d-flex align-items-center w-100 py-3 px-4">
+                    <div class="me-3">${icon}</div>
+                    <div class="fw-bold extra-small text-uppercase ls-1">${message}</div>
+                    <button type="button" class="btn-close ms-auto me-0" data-bs-dismiss="toast" aria-label="Close" style="filter: ${type === 'success' ? 'none' : 'invert(1)'}"></button>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.classList.add('fade');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
     </script>
     @livewireScripts
 </body>

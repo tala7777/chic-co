@@ -33,7 +33,9 @@ class ProductManager extends Component
     // Form/Details
     public $name, $description, $price, $discount_percentage = 0, $category_id, $image, $product_id, $aesthetic, $stock = 10, $status = 'active', $is_featured = false;
     public $colors = [];
-    public $color_stock = [];
+    public $sizes = [];
+    public $variant_stock = []; // Key: "color|size" -> quantity
+    public $galleries = []; // Array of URL strings
 
     public $isEditMode = false;
     public $showProductSidebar = false;
@@ -56,7 +58,7 @@ class ProductManager extends Component
             'price' => 'nullable|numeric|regex:/^\d+(\.\d{1,2})?$/',
             'discount_percentage' => 'nullable|numeric|min:0|max:100',
             'stock' => 'nullable|integer|min:0',
-            'color_stock.*' => 'nullable|integer|min:0',
+            'variant_stock.*' => 'nullable|integer|min:0',
         ]);
     }
 
@@ -120,7 +122,17 @@ class ProductManager extends Component
         $this->status = $product->status;
         $this->is_featured = $product->is_featured;
         $this->colors = $product->colors ?? [];
-        $this->color_stock = $product->color_stock ?? [];
+        $this->sizes = $product->sizes ?? [];
+
+        // Load variants
+        $this->variant_stock = [];
+        foreach ($product->variants as $variant) {
+            $this->variant_stock["{$variant->color}|{$variant->size}"] = $variant->stock;
+        }
+
+        // Load Gallery
+        $this->galleries = $product->images->pluck('url')->toArray();
+
         $this->selectedProduct = $product;
 
         $this->isEditMode = true;
@@ -129,26 +141,40 @@ class ProductManager extends Component
 
     public function updatedColors()
     {
-        // Ensure color_stock only contains valid selected colors
-        // But preserve existing quantities for colors that are still selected
-        $newColorStock = [];
-        foreach ($this->colors as $color) {
-            $newColorStock[$color] = $this->color_stock[$color] ?? 1; // Default to 1 for new selections
+        $this->syncVariants();
+    }
+    public function updatedSizes()
+    {
+        $this->syncVariants();
+    }
+
+    private function syncVariants()
+    {
+        $newVariantStock = [];
+
+        if (!empty($this->colors) && !empty($this->sizes)) {
+            foreach ($this->colors as $color) {
+                foreach ($this->sizes as $size) {
+                    $key = "{$color}|{$size}";
+                    // Preserve existing value or default to 0
+                    $newVariantStock[$key] = $this->variant_stock[$key] ?? 0;
+                }
+            }
         }
-        $this->color_stock = $newColorStock;
+
+        $this->variant_stock = $newVariantStock;
         $this->syncTotalStock();
     }
 
-    public function updatedColorStock($value, $key)
+    public function updatedVariantStock($value, $key)
     {
-        // Key might be like '#000000'
         $this->syncTotalStock();
     }
 
     private function syncTotalStock()
     {
-        if (!empty($this->colors)) {
-            $this->stock = array_sum($this->color_stock);
+        if (!empty($this->variant_stock)) {
+            $this->stock = array_sum($this->variant_stock);
         }
     }
 
@@ -161,10 +187,18 @@ class ProductManager extends Component
             'aesthetic' => 'required|in:soft,alt,luxury,mix',
             'stock' => 'required|integer|min:0',
             'colors' => 'nullable|array',
-            'color_stock' => 'nullable|array',
+            'sizes' => 'nullable|array',
         ];
 
         $this->validate($rules);
+
+        // Sorting sizes logic...
+        if (!empty($this->sizes)) {
+            $sizeOrder = ['XXS' => 1, 'XS' => 2, 'S' => 3, 'M' => 4, 'L' => 5, 'XL' => 6, 'XXL' => 7, 'XXXL' => 8];
+            usort($this->sizes, function ($a, $b) use ($sizeOrder) {
+                return ($sizeOrder[strtoupper($a)] ?? 99) <=> ($sizeOrder[strtoupper($b)] ?? 99);
+            });
+        }
 
         $data = [
             'name' => $this->name,
@@ -179,20 +213,48 @@ class ProductManager extends Component
             'status' => $this->status,
             'is_featured' => $this->is_featured,
             'colors' => $this->colors,
-            'color_stock' => $this->color_stock,
+            'sizes' => $this->sizes,
         ];
 
-        // Ensure total stock equals sum of color quantities if colors are defined
-        if (!empty($this->colors)) {
-            $data['stock'] = array_sum($this->color_stock);
+        if (!empty($this->variant_stock)) {
+            $data['stock'] = array_sum($this->variant_stock);
         }
 
+        $product = null;
         if ($this->isEditMode) {
-            Product::find($this->product_id)->update($data);
+            $product = Product::find($this->product_id);
+            $product->update($data);
             $message = 'Piece updated.';
         } else {
-            Product::create($data);
+            $product = Product::create($data);
             $message = 'New piece added to gallery.';
+        }
+
+        // Sync Variants Table
+        $product->variants()->delete();
+        foreach ($this->variant_stock as $key => $qty) {
+            $parts = explode('|', $key);
+            if (count($parts) === 2) {
+                [$color, $size] = $parts;
+                if (in_array($color, $this->colors ?? []) && in_array($size, $this->sizes ?? [])) {
+                    $product->variants()->create([
+                        'color' => $color,
+                        'size' => $size,
+                        'stock' => (int) $qty
+                    ]);
+                }
+            }
+        }
+
+        // Sync Gallery Images Table
+        $product->images()->delete();
+        foreach (array_filter($this->galleries) as $index => $gUrl) {
+            $product->images()->create([
+                'url' => $gUrl,
+                'alt_text' => $product->name . ' Detail',
+                'is_primary' => false,
+                'sort_order' => $index
+            ]);
         }
 
         $this->showProductSidebar = false;
@@ -213,9 +275,20 @@ class ProductManager extends Component
         $this->dispatch('swal:success', ['title' => 'Bulk Action', 'text' => 'Selected pieces removed.', 'icon' => 'success']);
     }
 
+    public function addGalleryImage()
+    {
+        $this->galleries[] = '';
+    }
+
+    public function removeGalleryImage($index)
+    {
+        unset($this->galleries[$index]);
+        $this->galleries = array_values($this->galleries);
+    }
+
     private function resetInputFields()
     {
-        $this->reset(['name', 'description', 'price', 'discount_percentage', 'category_id', 'aesthetic', 'image', 'stock', 'status', 'is_featured', 'product_id', 'selectedProduct', 'colors', 'color_stock']);
+        $this->reset(['name', 'description', 'price', 'discount_percentage', 'category_id', 'aesthetic', 'image', 'stock', 'status', 'is_featured', 'product_id', 'selectedProduct', 'colors', 'sizes', 'variant_stock', 'galleries']);
     }
 
     public function render()

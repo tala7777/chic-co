@@ -70,6 +70,19 @@
             from { transform: scale(1); }
             to { transform: scale(1.15); }
         }
+
+        .btn.btn-outline-light.transition-all {
+            color: #f8f9fa; /* Bootstrap's light color */
+            transition: all 0.3s ease;
+        }
+
+        .btn.btn-outline-light.transition-all:hover {
+            color: #f8f9fa !important; /* Force same font color */
+            background-color: rgba(255, 255, 255, 0.15) !important; /* Darker background */
+            border-color: #f8f9fa !important;
+            transform: scale(1.05); /* Keep your hover-scale effect */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important; /* Enhanced shadow on hover */
+        }
     </style>
 
     <!-- Curated Experience: Personas -->
@@ -133,7 +146,9 @@
                     <span class="extra-small text-uppercase ls-3 mb-4 d-block opacity-100" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: 300;">Social Sanctuary</span>
                     <h2 class="display-2 mb-4 font-heading" style="color: #ffffff; letter-spacing: 4px; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); font-weight: 300;">THE VELVET ROOM</h2>
                     <p class="lead mb-5 opacity-100 fs-5 mx-auto" style="max-width: 750px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 300; letter-spacing: 0.5px;">Step into a private sanctuary designed for the modern connoisseur. Experience curation like never before.</p>
-                    <a href="{{ route('personalized.feed', ['view' => 'lookbook']) }}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill text-uppercase ls-2 shadow-lg hover-scale" style="border-width: 1px; font-weight: 400; background: rgba(255,255,255,0.05); backdrop-filter: blur(5px);">
+                    <a href="{{ route('personalized.feed', ['view' => 'lookbook']) }}" 
+                       class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill text-uppercase ls-2 shadow-lg transition-all"
+                       style="border-width: 1px; font-weight: 400; background: rgba(255,255,255,0.05); backdrop-filter: blur(5px);">
                         ENTER THE LOOKBOOK <i class="fa-solid fa-arrow-right ms-3"></i>
                     </a>
                 </div>

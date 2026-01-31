@@ -43,6 +43,42 @@ class QuickAddToCart extends Component
         $this->reset(['product', 'selectedSize', 'selectedColor']);
     }
 
+    public function isColorAvailable($color)
+    {
+        return $this->product->variants
+            ->where('color', $color)
+            ->where('stock', '>', 0)
+            ->count() > 0;
+    }
+
+    public function isSizeAvailable($size)
+    {
+        if (!$this->selectedColor) {
+            return $this->product->variants
+                ->where('size', $size)
+                ->where('stock', '>', 0)
+                ->count() > 0;
+        }
+
+        return $this->product->variants
+            ->where('color', $this->selectedColor)
+            ->where('size', $size)
+            ->where('stock', '>', 0)
+            ->count() > 0;
+    }
+
+    public function getStockForCurrentSelection()
+    {
+        if ($this->selectedColor && $this->selectedSize) {
+            $variant = $this->product->variants
+                ->where('color', $this->selectedColor)
+                ->where('size', $this->selectedSize)
+                ->first();
+            return $variant ? (int) $variant->stock : 0;
+        }
+        return $this->product->stock;
+    }
+
     public function addToBag()
     {
         if (!$this->product)
@@ -62,6 +98,16 @@ class QuickAddToCart extends Component
                 'selectedSize.required' => 'Please select a size.',
                 'selectedColor.required' => 'Please select a color.'
             ]);
+        }
+
+        // Variant Stock Check
+        if ($this->getStockForCurrentSelection() <= 0) {
+            $this->dispatch('swal:error', [
+                'title' => 'Unavailable',
+                'text' => 'This specific combination is currently out of stock.',
+                'icon' => 'warning'
+            ]);
+            return;
         }
 
         try {

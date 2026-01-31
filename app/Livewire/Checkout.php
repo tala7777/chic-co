@@ -224,16 +224,25 @@ class Checkout extends Component
                 continue;
 
             $color = $item['color'] ?? null;
-            $stockAvailable = $product->stock;
+            $size = $item['size'] ?? null;
+            $stockAvailable = 0;
 
-            if ($color && isset($product->color_stock[$color])) {
-                $stockAvailable = (int) $product->color_stock[$color];
+            if ($color && $size) {
+                // Check variant stock
+                $variant = $product->variants()
+                    ->where('color', $color)
+                    ->where('size', $size)
+                    ->first();
+                $stockAvailable = $variant ? $variant->stock : 0;
+            } else {
+                // Fallback to legacy total stock check if variant not found (or non-variant product)
+                $stockAvailable = $product->stock;
             }
 
             if ($stockAvailable < $item['quantity']) {
                 $this->dispatch('swal:error', [
                     'title' => 'Stock Insufficient',
-                    'text' => 'The ' . ($color ?? '') . ' version of ' . ($product->name ?? 'item') . ' has just been acquired by other clients.',
+                    'text' => "Currently, we don't have enough stock for " . ($color ? "$color / $size" : "this itme") . ".",
                     'icon' => 'error'
                 ]);
                 return;
@@ -268,14 +277,16 @@ class Checkout extends Component
             if ($product) {
                 $product->increment('discover_score', 50);
                 $product->increment('recent_purchases', 1);
+
+                // Decrement Total Stock
                 $product->decrement('stock', $item['quantity']);
 
-                // Update color-specific stock
-                if ($item['color'] && isset($product->color_stock[$item['color']])) {
-                    $cStock = $product->color_stock;
-                    $cStock[$item['color']] = max(0, (int) $cStock[$item['color']] - $item['quantity']);
-                    $product->color_stock = $cStock;
-                    $product->save();
+                // Decrement Variant Stock
+                if ($item['color'] && $item['size']) {
+                    $product->variants()
+                        ->where('color', $item['color'])
+                        ->where('size', $item['size'])
+                        ->decrement('stock', $item['quantity']);
                 }
 
                 if ($product->aesthetic) {

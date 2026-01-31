@@ -277,7 +277,47 @@
                                 </div>
                             </div>
                             <input type="text" wire:model.live="image" class="form-control border-0 bg-light rounded-3 p-3"
-                                placeholder="Enter image URL...">
+                                placeholder="Enter main image URL...">
+                        </div>
+
+                        <!-- Gallery Images -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <label class="form-label fw-bold text-uppercase mb-0"
+                                    style="font-size: 0.75rem; letter-spacing: 1px; color: #666;">Archive Gallery</label>
+                                <button type="button" wire:click="addGalleryImage"
+                                    class="btn btn-sm btn-outline-dark rounded-pill extra-small px-3">
+                                    <i class="fa fa-plus me-1"></i> Add View
+                                </button>
+                            </div>
+
+                            <div class="d-flex flex-column gap-3">
+                                @foreach($galleries as $index => $gUrl)
+                                    <div class="d-flex gap-2 align-items-center animate-fade-in"
+                                        wire:key="gallery-{{ $index }}">
+                                        <div class="bg-light rounded-3 overflow-hidden shadow-sm"
+                                            style="width: 50px; height: 50px; flex-shrink: 0;">
+                                            <img src="{{ $gUrl ?: 'https://via.placeholder.com/100' }}"
+                                                class="w-100 h-100 object-fit-cover">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <input type="text" wire:model.live="galleries.{{ $index }}"
+                                                class="form-control border-0 bg-light rounded-3 p-2 extra-small"
+                                                placeholder="View detail URL...">
+                                        </div>
+                                        <button type="button" wire:click="removeGalleryImage({{ $index }})"
+                                            class="btn btn-sm btn-outline-danger border-0 rounded-pill p-2">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            @if(count($galleries) === 0)
+                                <div class="text-center p-3 rounded-4 bg-light border border-dashed extra-small text-muted">
+                                    No archival views selected.
+                                </div>
+                            @endif
                         </div>
 
                         <div class="row g-3">
@@ -360,6 +400,22 @@
 
                             <div class="col-12">
                                 <label class="form-label fw-bold text-uppercase mb-3"
+                                    style="font-size: 0.75rem; letter-spacing: 1px; color: #666;">Available Sizes</label>
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    @foreach(['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
+                                        <div class="form-check form-check-inline p-0 m-0">
+                                            <input type="checkbox" wire:model.live="sizes" value="{{ $size }}"
+                                                id="size-{{ $size }}" class="btn-check">
+                                            <label class="size-picker-btn" for="size-{{ $size }}">
+                                                {{ $size }}
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-uppercase mb-3"
                                     style="font-size: 0.75rem; letter-spacing: 1px; color: #666;">Available Colors</label>
                                 <div class="d-flex flex-wrap gap-2 mb-3">
                                     @foreach(['#000000', '#F5F5DC', '#FFFFFF', '#808080', '#A52A2A', '#000080', '#2E8B57', '#C0C0C0', '#FFD700'] as $c)
@@ -377,7 +433,7 @@
                                     @endforeach
                                 </div>
 
-                                @if(count($colors ?? []) > 0)
+                                @if(count($colors ?? []) > 0 && count($sizes ?? []) > 0)
                                     <div class="mt-4 p-4 rounded-4 border bg-white shadow-sm animate-fade-in"
                                         style="border-style: dashed !important; border-width: 2px !important;">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -385,27 +441,32 @@
                                                 Inventory Control</h6>
                                             <button type="button" wire:click="$set('colors', [])"
                                                 class="btn btn-link p-0 extra-small text-danger text-decoration-none">
-                                                <i class="fa fa-times"></i> Clear Colors
+                                                <i class="fa fa-times"></i> Clear All
                                             </button>
                                         </div>
 
-                                        <div class="row g-3">
+                                        <div class="row g-4">
                                             @foreach($colors as $c)
-                                                <div class="col-md-6" wire:key="variant-stock-{{ $c }}">
-                                                    <div
-                                                        class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 transition-all hover-lift border border-transparent hover-border-primary">
-                                                        <div class="rounded-circle border shadow-sm flex-shrink-0"
-                                                            style="width: 32px; height: 32px; background-color: {{ $c }};">
-                                                        </div>
-                                                        <div class="flex-grow-1">
-                                                            <div class="input-group input-group-sm">
-                                                                <input type="number" wire:model.live="color_stock.{{ $c }}"
-                                                                    class="form-control border-0 bg-white rounded-3 fw-bold text-center"
-                                                                    placeholder="0" style="font-size: 0.9rem;">
-                                                                <span
-                                                                    class="input-group-text bg-white border-0 extra-small text-muted">UNITS</span>
+                                                <div class="col-12" wire:key="variant-group-{{ $c }}">
+                                                    <div class="d-flex align-items-center mb-2 padding-bottom-2 border-bottom pb-2">
+                                                        <div class="rounded-circle border shadow-sm me-2"
+                                                            style="width: 20px; height: 20px; background-color: {{ $c }};"></div>
+                                                        <span class="small fw-bold text-dark">{{ $c }} Variants</span>
+                                                    </div>
+
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        @foreach($sizes as $size)
+                                                            @php $key = "$c|$size"; @endphp
+                                                            <div class="flex-grow-1" style="min-width: 100px;">
+                                                                <div class="input-group input-group-sm">
+                                                                    <span
+                                                                        class="input-group-text bg-light border-0 fw-bold small">{{ $size }}</span>
+                                                                    <input type="number" wire:model.live="variant_stock.{{ $key }}"
+                                                                        class="form-control border-0 bg-light text-center fw-bold"
+                                                                        placeholder="0">
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        @endforeach
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -415,8 +476,6 @@
                                             <span class="extra-small text-muted">
                                                 <i class="fa fa-calculator me-1"></i>
                                                 Sum calculation:
-                                                {{ implode(' + ', array_filter(array_values($color_stock ?? []), fn($v) => !is_null($v) && $v !== '')) ?: '0' }}
-                                                =
                                                 <strong>{{ $stock }} units</strong>
                                             </span>
                                         </div>
@@ -424,8 +483,8 @@
                                 @else
                                     <div
                                         class="mt-3 p-3 rounded-4 bg-light text-center border border-dashed text-muted extra-small">
-                                        <i class="fa fa-palette me-2"></i> Select colors above to enable color-specific
-                                        inventory tracking.
+                                        <i class="fa fa-layer-group me-2"></i> Select both <strong>Colors</strong> and
+                                        <strong>Sizes</strong> above to configure inventory.
                                     </div>
                                 @endif
                             </div>
@@ -585,6 +644,37 @@
         .hover-lift:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .size-picker-btn {
+            min-width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #666;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .size-picker-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-check:checked+.size-picker-btn {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
         }
     </style>
 </div>

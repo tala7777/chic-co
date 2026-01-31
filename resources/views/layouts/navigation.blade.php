@@ -28,9 +28,16 @@
                         <li>
                             <hr class="dropdown-divider opacity-50">
                         </li>
-                        @foreach(['soft' => 'Soft Femme', 'alt' => 'Alt Girly', 'luxury' => 'Luxury Clean'] as $k => $l)
+                        @foreach([
+                            'soft' => ['label' => 'Soft Femme', 'emoji' => '🌸'],
+                            'alt' => ['label' => 'Alt Girly', 'emoji' => '🖤'],
+                            'luxury' => ['label' => 'Luxury Clean', 'emoji' => '✨'],
+                            'mix' => ['label' => 'Modern Mix', 'emoji' => '🎭']
+                        ] as $k => $info)
                             <li><a class="dropdown-item py-2 rounded-3 small text-muted hover-bg-light"
-                                    href="{{ route('shop.index', ['aesthetic' => $k]) }}">{{ $l }}</a></li>
+                                    href="{{ route('shop.index', ['aesthetic' => $k]) }}">
+                                    <span class="me-2">{{ $info['emoji'] }}</span>{{ $info['label'] }}
+                                </a></li>
                         @endforeach
                     </ul>
                 </li>
@@ -53,6 +60,13 @@
 
         <!-- Utility (Right) -->
         <div class="d-flex align-items-center gap-4">
+            <!-- Home Icon -->
+            <a href="{{ route('home') }}"
+                class="text-dark opacity-50 hover-opacity-100 transition-premium d-flex align-items-center justify-content-center p-0"
+                title="Home">
+                <i class="fa-solid fa-house fs-5"></i>
+            </a>
+
             <!-- Search -->
             <a href="javascript:void(0)"
                 class="text-dark opacity-50 hover-opacity-100 transition-premium d-flex align-items-center justify-content-center p-0"

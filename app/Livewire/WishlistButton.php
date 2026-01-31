@@ -32,10 +32,9 @@ class WishlistButton extends Component
                 ->where('product_id', $this->productId)
                 ->delete();
             $this->isWishlisted = false;
-            $this->dispatch('swal:success', [
-                'title' => 'Removed',
-                'text' => 'Item removed from wishlist.',
-                'icon' => 'info'
+            $this->dispatch('show-toast', [
+                'message' => 'Item removed from wishlist.',
+                'type' => 'info'
             ]);
         } else {
             Wishlist::create([
@@ -43,10 +42,9 @@ class WishlistButton extends Component
                 'product_id' => $this->productId
             ]);
             $this->isWishlisted = true;
-            $this->dispatch('swal:success', [
-                'title' => 'Saved',
-                'text' => 'Item added to your curated wishlist.',
-                'icon' => 'success'
+            $this->dispatch('show-toast', [
+                'message' => 'Saved to wishlist.',
+                'type' => 'success'
             ]);
         }
 

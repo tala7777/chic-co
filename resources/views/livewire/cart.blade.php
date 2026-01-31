@@ -15,7 +15,7 @@ t<div class="container py-5 animate-fade-in" style="min-height: 70vh;">
                                     <tr class="text-uppercase small ls-1">
                                         <th class="ps-4 py-3 border-0">Product</th>
                                         <th class="py-3 border-0">Price</th>
-                                        <th class="py-3 border-0">Quantity</th>
+                                        <th class="py-3 border-0 text-center">Quantity</th>
                                         <th class="pe-4 py-3 border-0 text-end">Total</th>
                                     </tr>
                                 </thead>
@@ -75,13 +75,13 @@ t<div class="container py-5 animate-fade-in" style="min-height: 70vh;">
                                                 @endif
                                             </td>
                                             <td class="py-4">
-                                                <div class="d-flex align-items-center border rounded-pill px-2 py-1"
-                                                    style="width: fit-content;">
-                                                    <button class="btn btn-link text-dark p-0 px-2 text-decoration-none"
+                                                <div class="d-flex align-items-center border rounded-pill px-2 py-1 mx-auto"
+                                                    style="width: fit-content; max-width: 120px;">
+                                                    <button class="btn btn-link text-dark p-0 px-2 text-decoration-none quantity-btn"
                                                         wire:click="decrement('{{ $cartKey }}')">-</button>
                                                     <span class="px-2 fw-bold"
                                                         style="font-size: 0.9rem; min-width: 25px; text-align: center;">{{ $item['quantity'] }}</span>
-                                                    <button class="btn btn-link text-dark p-0 px-2 text-decoration-none"
+                                                    <button class="btn btn-link text-dark p-0 px-2 text-decoration-none quantity-btn"
                                                         wire:click="increment('{{ $cartKey }}')">+</button>
                                                 </div>
                                             </td>
@@ -189,6 +189,18 @@ t<div class="container py-5 animate-fade-in" style="min-height: 70vh;">
         table th {
             font-weight: 600;
             color: #666;
+        }
+
+        .quantity-btn {
+            opacity: 1 !important;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-btn:hover {
+            transform: scale(1.2);
+            color: #000 !important;
         }
     </style>
 </div>

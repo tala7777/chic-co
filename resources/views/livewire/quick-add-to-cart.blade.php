@@ -4,6 +4,23 @@
             style="z-index: 1050; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);">
 
             <!-- Modal Card -->
+            @php
+                // Strict Ascending Grade for Size Sorting
+                $sizeOrderMap = [
+                    'XXS' => 1, 'XS' => 2, 'S' => 3, 'M' => 4,
+                    'L' => 5, 'XL' => 6, 'XXL' => 7, 'XXXL' => 8
+                ];
+
+                $availableSizes = ($product->sizes && count($product->sizes) > 0) ? $product->sizes : [];
+
+                if(count($availableSizes) > 0) {
+                    usort($availableSizes, function($a, $b) use ($sizeOrderMap) {
+                        $rankA = $sizeOrderMap[strtoupper($a)] ?? 99;
+                        $rankB = $sizeOrderMap[strtoupper($b)] ?? 99;
+                        return $rankA <=> $rankB;
+                    });
+                }
+            @endphp
             <div class="bg-white rounded-5 shadow-lg overflow-hidden position-relative w-100 mx-3 animate-fade-up"
                 style="max-width: 800px; animation-duration: 0.3s;">
 
@@ -27,20 +44,33 @@
                             </p>
 
                             <!-- Size Selection -->
-                            @if(!empty($product->sizes))
+                            @if(!empty($availableSizes))
                                 <div class="mb-4">
                                     <label class="d-block small fw-bold text-uppercase ls-1 mb-2">Select Size</label>
                                     <div class="d-flex flex-wrap gap-2">
-                                        @foreach($product->sizes as $size)
+                                        @foreach($availableSizes as $size)
                                             <button type="button" wire:click="$set('selectedSize', '{{ $size }}')"
-                                                class="btn btn-sm rounded-pill px-3 py-2 fw-bold {{ $selectedSize === $size ? 'bg-dark text-white' : 'btn-outline-dark border-secondary-subtle text-dark' }}"
-                                                style="min-width: 45px;">
+                                                class="size-option-btn {{ $selectedSize === $size ? 'active' : '' }}"
+                                                {{ !$this->isSizeAvailable($size) ? 'disabled' : '' }}>
                                                 {{ $size }}
                                             </button>
                                         @endforeach
                                     </div>
                                     @error('selectedSize') <span class="text-danger small mt-1 d-block">{{ $message }}</span>
                                     @enderror
+                                </div>
+                            @elseif(!empty($product->sizes))
+                                <!-- Fallback if variable setup fails (shouldn't happen) -->
+                                <div class="mb-4">
+                                    <label class="d-block small fw-bold text-uppercase ls-1 mb-2">Select Size</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach($product->sizes as $size)
+                                            <button type="button" wire:click="$set('selectedSize', '{{ $size }}')"
+                                                class="size-option-btn {{ $selectedSize === $size ? 'active' : '' }}">
+                                                {{ $size }}
+                                            </button>
+                                        @endforeach
+                                    </div>
                                 </div>
                             @else
                                 <div class="mb-4">
@@ -57,7 +87,9 @@
                                             <button type="button" wire:click="$set('selectedColor', '{{ $color }}')"
                                                 class="rounded-circle border d-flex align-items-center justify-content-center p-0 transition-premium"
                                                 style="width: 32px; height: 32px; background-color: {{ strtolower($color) }}; {{ $selectedColor === $color ? 'box-shadow: 0 0 0 2px white, 0 0 0 4px var(--color-ink-black);' : '' }}"
-                                                title="{{ $color }}">
+                                                {{ !$this->isColorAvailable($color) ? 'disabled' : '' }}
+                                                title="{{ $color }} {{ !$this->isColorAvailable($color) ? '(Sold Out)' : '' }}">
+                                                @if($selectedColor === $color) <i class="fa-solid fa-check {{ in_array(strtolower($color), ['#ffffff', '#f5f5dc', 'white']) ? 'text-dark' : 'text-white' }} small"></i> @endif
                                             </button>
                                         @endforeach
                                     </div>
@@ -80,4 +112,38 @@
             </div>
         </div>
     @endif
+
+    <style>
+        .size-option-btn {
+            min-width: 45px;
+            height: 45px;
+            padding: 0 12px;
+            border-radius: 50%;
+            border: 1px solid #EDEDED;
+            background: #fff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            transition: all 0.3s ease;
+            color: #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .size-option-btn:hover { 
+            background-color: rgba(0, 0, 0, 0.05); /* Darker background on hover */
+            color: #444; /* Keep text color same */
+            border-color: #d0d0d0; 
+            transform: translateY(-2px); 
+        }
+        .size-option-btn.active { 
+            background: #1a1a1a; 
+            color: #fff; 
+            border-color: #1a1a1a; 
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15); 
+        }
+        .size-option-btn:disabled { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+        button:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
+        
+        .transition-premium { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    </style>
 </div>

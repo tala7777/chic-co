@@ -16,9 +16,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminUserSeeder::class,
             CategorySeeder::class,
-            ProductSeeder::class,
+            LuxuryProductSeeder::class,
             AttributeSeeder::class,
+            PersonaUserSeeder::class,
             UserProfileSeeder::class,
+            FullUserSeeder::class,
+            EliteReviewSeeder::class,
+            ReviewSeeder::class, // More generic ones for volume
         ]);
     }
 }

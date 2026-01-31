@@ -74,11 +74,17 @@ class ProductDetail extends Component
         ]);
 
         try {
-            $stock = $this->getStockForSelectedColor();
-            if ($stock <= 0) {
+            $variant = $this->product->variants()
+                ->where('color', $this->selectedColor)
+                ->where('size', $this->selectedSize)
+                ->first();
+
+            $maxStock = $variant ? $variant->stock : 0;
+
+            if ($maxStock <= 0) {
                 $this->dispatch('swal:error', [
-                    'title' => 'Stock Exhausted',
-                    'text' => 'This color version is currently unavailable.',
+                    'title' => 'Unavailable',
+                    'text' => 'This specific combination is currently out of stock.',
                     'icon' => 'warning'
                 ]);
                 return;
@@ -95,12 +101,50 @@ class ProductDetail extends Component
         }
     }
 
-    public function getStockForSelectedColor()
+    public function getStockForVariant($color = null, $size = null)
     {
-        if (!$this->selectedColor || !isset($this->product->color_stock[$this->selectedColor])) {
-            return $this->product->stock;
+        $color = $color ?? $this->selectedColor;
+        $size = $size ?? $this->selectedSize;
+
+        if ($color && $size) {
+            $variant = $this->product->variants
+                ->where('color', $color)
+                ->where('size', $size)
+                ->first();
+            return $variant ? (int) $variant->stock : 0;
         }
-        return (int) $this->product->color_stock[$this->selectedColor];
+        return 0;
+    }
+
+    public function isColorAvailable($color)
+    {
+        return $this->product->variants
+            ->where('color', $color)
+            ->where('stock', '>', 0)
+            ->count() > 0;
+    }
+
+    public function isSizeAvailable($size)
+    {
+        return $this->product->variants
+            ->where('color', $this->selectedColor)
+            ->where('size', $size)
+            ->where('stock', '>', 0)
+            ->count() > 0;
+    }
+
+    public function getAvailableSizesProperty()
+    {
+        if (!$this->selectedColor)
+            return $this->product->sizes ?? [];
+
+        return $this->product->variants
+            ->where('color', $this->selectedColor)
+            ->where('stock', '>', 0)
+            ->pluck('size')
+            ->unique()
+            ->values()
+            ->toArray();
     }
 
     public function render()

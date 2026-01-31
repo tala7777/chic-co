@@ -40,13 +40,33 @@
         <div class="lookbook-view animate-fade-up mt-5">
             @forelse($products as $product)
                 <div class="lookbook-section mb-5 py-5 border-top" wire:key="lookbook-{{ $product->id }}">
+                    @php
+                        $mainUrl = $product->image ?? ($product->images->first()?->url ?? 'https://via.placeholder.com/800x1200');
+                        $allImages = $product->images->map(fn($img) => (object) ['url' => $img->url])
+                            ->prepend((object) ['url' => $mainUrl])
+                            ->unique('url')
+                            ->values();
+                    @endphp
                     <div class="row align-items-center g-5">
                         <div class="col-lg-7">
-                            <div class="lookbook-image-container overflow-hidden rounded-5 shadow-2xl">
-                                <img src="{{ $product->image }}" class="w-100 h-100 object-fit-cover"
-                                    style="min-height: 650px; transform: scale(1); transition: transform 0.8s ease;"
-                                    onmouseover="this.style.transform='scale(1.05)'"
-                                    onmouseout="this.style.transform='scale(1)'" alt="{{ $product->name }}">
+                            <div class="lookbook-image-container overflow-hidden rounded-5 shadow-2xl position-relative"
+                                x-data="{ activeImg: '{{ $mainUrl }}' }">
+                                <img :src="activeImg" class="w-100 h-100 object-fit-cover"
+                                    style="min-height: 500px; transform: scale(1); transition: all 0.8s ease;"
+                                    alt="{{ $product->name }}">
+
+                                @if($allImages->count() > 1)
+                                    <div class="position-absolute bottom-0 start-0 w-100 p-4 d-flex gap-2 justify-content-center flex-wrap"
+                                        style="background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);">
+                                        @foreach($allImages->take(5) as $img)
+                                            <div @click="activeImg = '{{ $img->url }}'"
+                                                class="cursor-pointer rounded-circle border-2 transition-premium overflow-hidden shadow-sm"
+                                                :style="activeImg === '{{ $img->url }}' ? 'border-color: #fff; width: 48px; height: 48px; opacity: 1;' : 'border-color: transparent; width: 40px; height: 40px; opacity: 0.6;'">
+                                                <img src="{{ $img->url }}" class="w-100 h-100 object-fit-cover" alt="Detail">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="col-lg-5 px-lg-5 text-start">
@@ -126,7 +146,8 @@
         }
 
         .lookbook-image-container {
-            height: 750px;
+            height: 550px;
+            /* Reduced from 750px */
         }
     </style>
 </div>

@@ -28,7 +28,7 @@
     <div class="row g-5">
         <!-- Sidebar Filters -->
         <div class="col-lg-3 mb-4">
-            <div class="card card-premium p-4 sticky-top border shadow-none" style="top: 120px;">
+            <div class="card card-premium p-4 border shadow-none">
                 <div class="mb-5">
                     <div class="position-relative">
                         <input type="text" wire:model.live.debounce.300ms="search" class="form-control"
@@ -117,7 +117,7 @@
 
             <div class="row g-4 px-2">
                 @forelse ($products as $product)
-                    <div class="col-6 col-lg-6" wire:key="product-{{ $product->id }}">
+                    <div class="col-6 col-lg-3" wire:key="product-{{ $product->id }}">
                         <x-product-card :product="$product" :badgeType="$product->aesthetic"
                             :badgeText="strtoupper($product->aesthetic)" />
                     </div>

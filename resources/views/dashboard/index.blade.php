@@ -17,7 +17,8 @@
     <div class="container py-5 animate-fade-up">
         <div class="row">
             <div class="col-lg-3 mb-4">
-                <div class="card card-premium p-4 shadow-lg border-0" style="background: linear-gradient(180deg, #ffffff 0%, #fdfbfc 100%);">
+                <div class="card card-premium p-4 shadow-lg border-0 dashboard-sidebar" 
+                     style="background: linear-gradient(180deg, #ffffff 0%, #fdfbfc 100%); position: sticky; top: 120px; z-index: 10; transition: all 0.3s ease; height: fit-content;">
                     <div class="d-flex align-items-center mb-4 px-2">
                         <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm" 
                              style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--color-primary-blush) 0%, #ff85a1 100%); color: white;">
