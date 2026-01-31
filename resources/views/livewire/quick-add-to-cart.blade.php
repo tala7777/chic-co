@@ -50,8 +50,7 @@
                                     <div class="d-flex flex-wrap gap-2">
                                         @foreach($availableSizes as $size)
                                             <button type="button" wire:click="$set('selectedSize', '{{ $size }}')"
-                                                class="size-option-btn {{ $selectedSize === $size ? 'active' : '' }}"
-                                                {{ !$this->isSizeAvailable($size) ? 'disabled' : '' }}>
+                                                class="size-option-btn {{ $selectedSize === $size ? 'active' : '' }}">
                                                 {{ $size }}
                                             </button>
                                         @endforeach

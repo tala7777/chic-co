@@ -25,15 +25,7 @@
                 <span class="fst-italic pe-2" style="color: #E87A90; font-family: 'Playfair Display', serif;">Signature Aura</span>
             </h1>
 
-            <div class="d-flex justify-content-center animate-fade-up">
-                <div class="backdrop-blur bg-white bg-opacity-70 rounded-pill px-5 py-3 shadow-sm border border-white border-opacity-50" style="max-width: 750px;">
-                    <p class="lead mb-0 text-dark fw-medium" 
-                       style="font-size: 1.25rem; font-family: 'Lato', sans-serif; line-height: 1.5; color: #333 !important;">
-                        Discover curated pieces that transform your world—where every thread weaves your personal luxury story.
-                    </p>
-                </div>
-            </div>
-
+      
             <div class="d-flex flex-column flex-sm-row gap-4 justify-content-center align-items-center animate-fade-up mt-5" style="animation-delay: 0.2s;">
                 <a href="{{ route('sparkle.quiz') }}" 
                    class="btn btn-dark btn-lg px-5 py-3 rounded-pill fs-6 fw-bold shadow-lg hover-scale text-uppercase ls-2 d-flex align-items-center gap-2"

@@ -28,7 +28,7 @@ class PersonalizedFeed extends Component
 
         if (!$this->aesthetic) {
             if (auth()->check()) {
-                $this->aesthetic = auth()->user()->style_persona ?? Session::get('user_aesthetic', 'mix');
+                $this->aesthetic = auth()->user()->primary_aesthetic ?? auth()->user()->style_persona ?? Session::get('user_aesthetic', 'mix');
             } else {
                 $this->aesthetic = Session::get('user_aesthetic', 'mix');
             }
@@ -68,21 +68,23 @@ class PersonalizedFeed extends Component
 
     public function render()
     {
-        $query = Product::query();
+        $recommendationService = new \App\Services\StyleRecommendationService();
+        $query = $recommendationService->getPersonalizedQuery();
 
-        // Filter by aesthetic if explicit, otherwise 'mix' shows everything or balanced mix
-        if ($this->aesthetic && $this->aesthetic !== 'mix') {
+        // Aesthetic override if manually selected (optional)
+        if ($this->aesthetic && $this->aesthetic !== 'mix' && $this->aesthetic !== 'all') {
             $query->where('aesthetic', $this->aesthetic);
         }
 
-        // Apply mood filters (arbitrary logic for demo)
+        // Apply mood filters dynamically
         if ($this->mood === 'indulge') {
-            $query->orderBy('price', 'desc');
+            // Indulge: High tier priority
+            $query->orderByRaw("CASE WHEN price_tier = 'luxury' THEN 0 ELSE 1 END")
+                ->orderBy('price', 'desc');
         } elseif ($this->mood === 'explore') {
-            $query->inRandomOrder();
-        } else {
-            // Discover: Newest or featured
-            $query->latest();
+            // Explore: Shuffle the predictable algorithm for discovery
+            // Using reorder() is critical to clear both order clauses and their bindings
+            $query->reorder()->inRandomOrder();
         }
 
         $products = $query->paginate(12);

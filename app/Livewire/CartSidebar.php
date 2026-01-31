@@ -26,6 +26,10 @@ class CartSidebar extends Component
         $items = $cartService->getItems();
 
         $this->cart = $items->map(function ($item) {
+            if (!$item->product) {
+                // Handle orphaned cart items gracefully
+                return null;
+            }
             return [
                 'item_id' => $item->id, // DB record ID
                 'id' => $item->product_id,
@@ -38,7 +42,7 @@ class CartSidebar extends Component
                 'aesthetic' => $item->product->aesthetic,
                 'out_of_stock' => $item->product->stock <= 0
             ];
-        })->toArray();
+        })->filter()->values()->toArray();
 
         $this->total = $cartService->getSubtotal();
 

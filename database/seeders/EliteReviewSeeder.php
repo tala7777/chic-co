@@ -62,11 +62,16 @@ class EliteReviewSeeder extends Seeder
             $aesthetic = $product->aesthetic ?? 'luxury';
             $reviewData = $reviews[$aesthetic] ?? $reviews['luxury'];
 
-            // 50% chance to have 1-2 reviews
-            if (rand(0, 1)) {
+            // Try to find a user that matches this aesthetic for a more "intended" feel
+            $matchingUser = $users->where('primary_aesthetic', $aesthetic)->first();
+
+            // 70% chance to have 1-2 reviews
+            if (rand(1, 100) <= 70) {
                 $numReviews = rand(1, 2);
                 for ($i = 0; $i < $numReviews; $i++) {
-                    $user = $users->random();
+                    // Use the matching user for the first review, then random for others
+                    $user = ($i === 0 && $matchingUser) ? $matchingUser : $users->random();
+
                     Review::updateOrCreate(
                         ['user_id' => $user->id, 'product_id' => $product->id],
                         [

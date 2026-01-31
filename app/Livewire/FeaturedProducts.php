@@ -9,6 +9,13 @@ use App\Services\CartService;
 class FeaturedProducts extends Component
 {
     public $type = 'featured'; // featured, recent, top
+    public $activePersona = null;
+
+    public function setPersona($persona)
+    {
+        $this->activePersona = $persona;
+    }
+
     public function addToCart($productId)
     {
         try {
@@ -29,9 +36,11 @@ class FeaturedProducts extends Component
     {
         $query = Product::where('status', 'active')->where('stock', '>', 0);
 
+        if ($this->activePersona) {
+            $query->where('aesthetic', $this->activePersona);
+        }
+
         if ($this->type === 'top') {
-            // Logic for top products (e.g., most sales or high rating)
-            // Using random or specific logic for now
             $products = $query->inRandomOrder()->limit(4)->get();
         } elseif ($this->type === 'recent') {
             $products = $query->latest()->limit(4)->get();

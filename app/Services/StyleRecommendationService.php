@@ -8,113 +8,106 @@ use Illuminate\Support\Collection;
 class StyleRecommendationService
 {
     /**
-     * Get tailored recommendations based on a user's style context.
-     * Uses aesthetics, price tiers, and occasions for intelligent curation.
+     * Get a personalized query builder based on the user's total interactive footprint.
      */
-    public function getRecommendations(Collection $currentItems = null, $limit = 4): Collection
+    public function getPersonalizedQuery()
     {
-        $excludedIds = $currentItems ? $currentItems->pluck('id')->filter()->toArray() : [];
+        $stats = $this->analyzeStyleContext();
+        $aesthetic = $stats['aesthetic'];
+        $priceTier = $stats['price_tier'];
 
-        // 1. Identify style context
-        $stats = $this->analyzeStyleContext($currentItems);
-        $dominantAesthetic = $stats['aesthetic'];
-        $dominantPriceTier = $stats['price_tier'];
-        $occasions = $stats['occasions'];
+        $query = Product::where('status', 'active')->where('stock', '>', 0);
 
-        // 2. High Match: Same Aesthetic AND match either Price Tier or Occasions
-        $recommendations = Product::where('status', 'active')
-            ->where('stock', '>', 0)
-            ->whereNotIn('id', $excludedIds)
-            ->where('aesthetic', $dominantAesthetic)
-            ->where(function ($q) use ($dominantPriceTier, $occasions) {
-                $q->where('price_tier', $dominantPriceTier);
-                foreach ($occasions as $occasion) {
-                    $q->orWhere('occasions', 'like', '%' . $occasion . '%');
-                }
-            })
-            ->inRandomOrder()
-            ->limit($limit)
-            ->get();
-
-        // 3. Medium Match: Just same Aesthetic
-        if ($recommendations->count() < $limit) {
-            $alreadyFound = $recommendations->pluck('id')->toArray();
-            $more = Product::where('status', 'active')
-                ->where('stock', '>', 0)
-                ->whereNotIn('id', array_merge($excludedIds, $alreadyFound))
-                ->where('aesthetic', $dominantAesthetic)
-                ->inRandomOrder()
-                ->limit($limit - $recommendations->count())
-                ->get();
-
-            $recommendations = $recommendations->concat($more);
+        // Score based on aesthetic match (Primary importance)
+        if ($aesthetic !== 'mix') {
+            $query->orderByRaw("CASE WHEN aesthetic = ? THEN 0 ELSE 1 END", [$aesthetic]);
         }
 
-        // 4. Low Match/Global Discovery: High score products
-        if ($recommendations->count() < $limit) {
-            $alreadyFound = $recommendations->pluck('id')->toArray();
-            $trending = Product::where('status', 'active')
-                ->where('stock', '>', 0)
-                ->whereNotIn('id', array_merge($excludedIds, $alreadyFound))
-                ->orderBy('discover_score', 'desc')
-                ->limit($limit - $recommendations->count())
-                ->get();
-
-            $recommendations = $recommendations->concat($trending);
+        // Tier refinement
+        if ($priceTier === 'luxury') {
+            $query->orderByRaw("CASE WHEN price_tier = 'luxury' THEN 0 ELSE 1 END");
         }
 
-        return $recommendations;
+        // Always mix in some high discovery score items
+        $query->orderBy('discover_score', 'desc');
+
+        return $query;
     }
 
     /**
-     * Deep analysis of the current selection to build a style profile.
+     * Get tailored recommendations based on a user's style context.
+     */
+    public function getRecommendations(Collection $currentItems = null, $limit = 4): Collection
+    {
+        $query = $this->getPersonalizedQuery();
+
+        if ($currentItems) {
+            $query->whereNotIn('id', $currentItems->pluck('id')->toArray());
+        }
+
+        return $query->limit($limit)->get();
+    }
+
+    /**
+     * Deep analysis of the current selection and historical behavior to build a style profile.
      */
     private function analyzeStyleContext(Collection $items = null): array
     {
-        $default = [
-            'aesthetic' => 'mix',
-            'price_tier' => 'mid',
-            'occasions' => []
-        ];
+        $user = auth()->user();
 
-        if (!$items || $items->isEmpty()) {
-            // Check browser session for recent style footprint
-            $recentIds = session()->get('recently_viewed', []);
-            if (!empty($recentIds)) {
-                $recent = Product::whereIn('id', $recentIds)->get();
-                return $this->analyzeStyleContext($recent);
+        // 1. Initial State from User/Quiz
+        $aesthetic = $user->primary_aesthetic ?? 'mix';
+        $priceTier = 'mid';
+
+        // 2. Quiz Refinement
+        if ($user && $quiz = \App\Models\StyleQuizResult::where('user_id', $user->id)->first()) {
+            $aesthetic = $quiz->dominant_aesthetic ?? $aesthetic;
+            if (isset($quiz->preferences['budget']) && $quiz->preferences['budget'] === 'Premium') {
+                $priceTier = 'luxury';
             }
-            return $default;
         }
 
-        // Extract most frequent attributes
-        $aesthetics = $items->pluck('aesthetic')->filter();
-        $tiers = $items->pluck('price_tier')->filter();
+        // 3. Behavioral Refinement (Browsing History)
+        if ($user) {
+            $recentViews = \App\Models\UserBehavior::where('user_id', $user->id)
+                ->where('action', 'view')
+                ->latest()
+                ->limit(10)
+                ->with('product')
+                ->get();
 
-        $allOccasions = [];
-        foreach ($items as $item) {
-            // Handle both Eloquent models and arrays
-            if (is_object($item)) {
-                $occ = $item->occasions ?? [];
-            } else {
-                $occ = $item['occasions'] ?? [];
+            if ($recentViews->count() > 0) {
+                $vAesthetics = $recentViews->pluck('product.aesthetic')->filter();
+                if ($vAesthetics->count() > 0) {
+                    $aesthetic = $vAesthetics->countBy()->sortDesc()->keys()->first();
+                }
             }
+        }
 
-            // Decode if it's a JSON string
-            if (is_string($occ)) {
-                $occ = json_decode($occ, true) ?? [];
+        // 4. Cart Refinement (High Intent)
+        if ($user) {
+            $cartItems = \App\Models\CartItem::where('user_id', $user->id)->with('product')->get();
+            if ($cartItems->count() > 0) {
+                $cAesthetics = $cartItems->pluck('product.aesthetic')->filter();
+                if ($cAesthetics->count() > 0) {
+                    $aesthetic = $cAesthetics->countBy()->sortDesc()->keys()->first();
+                }
             }
+        }
 
-            // Merge occasions
-            if ($occ && is_array($occ)) {
-                $allOccasions = array_merge($allOccasions, $occ);
+        // 5. Fallback to Session for Guest
+        if (!$user && session()->has('recently_viewed')) {
+            $recentIds = session()->get('recently_viewed', []);
+            $recentProducts = Product::whereIn('id', $recentIds)->get();
+            if ($recentProducts->count() > 0) {
+                $aesthetic = $recentProducts->pluck('aesthetic')->countBy()->sortDesc()->keys()->first() ?? 'mix';
             }
         }
 
         return [
-            'aesthetic' => $aesthetics->countBy()->sortDesc()->keys()->first() ?? 'mix',
-            'price_tier' => $tiers->countBy()->sortDesc()->keys()->first() ?? 'mid',
-            'occasions' => array_slice(array_keys(array_count_values($allOccasions)), 0, 3)
+            'aesthetic' => $aesthetic ?? 'mix',
+            'price_tier' => $priceTier,
+            'occasions' => [] // Could be expanded further
         ];
     }
 }
