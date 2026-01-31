@@ -22,25 +22,66 @@
                 }
             @endphp
             <div class="bg-white rounded-5 shadow-lg overflow-hidden position-relative w-100 mx-3 animate-fade-up"
-                style="max-width: 800px; animation-duration: 0.3s;">
+                style="max-width: 900px; animation-duration: 0.3s;"
+                x-data="{ 
+                    mainImage: '{{ $product->image ?? ($product->images->first()?->url ?? asset('images/placeholder.jpg')) }}',
+                    allImages: [
+                        { url: '{{ $product->image ?? asset('images/placeholder.jpg') }}' },
+                        @foreach($product->images as $img)
+                            { url: '{{ $img->url }}' },
+                        @endforeach
+                    ].filter((v,i,a)=>a.findIndex(t=>(t.url === v.url))===i)
+                }">
 
                 <button wire:click="close" class="position-absolute top-0 end-0 m-4 btn-close z-10 p-2"></button>
 
                 <div class="row g-0">
-                    <!-- Product Image -->
-                    <div class="col-md-6 bg-light" style="min-height: 400px;">
-                        <img src="{{ $product->image ?? ($product->images->first()?->url ?? asset('images/placeholder.jpg')) }}"
-                            alt="{{ $product->name }}" class="w-100 h-100 object-fit-cover">
+                    <!-- Product Image & Mini Gallery -->
+                    <div class="col-md-7 position-relative" style="background: var(--color-cloud); min-height: 500px;"
+                         x-data="{ 
+                            next() { 
+                                let idx = this.allImages.findIndex(i => i.url === this.mainImage);
+                                this.mainImage = this.allImages[(idx + 1) % this.allImages.length].url;
+                            },
+                            prev() {
+                                let idx = this.allImages.findIndex(i => i.url === this.mainImage);
+                                this.mainImage = this.allImages[(idx - 1 + this.allImages.length) % this.allImages.length].url;
+                            }
+                         }">
+                        <img :src="mainImage"
+                            alt="{{ $product->name }}" class="w-100 h-100 object-fit-cover" 
+                            x-transition:enter="transition ease-out duration-300" 
+                            x-transition:enter-start="opacity-0" 
+                            x-transition:enter-end="opacity-100"
+                            :key="mainImage">
+                        
+                        <!-- Arrows Navigation -->
+                        <template x-if="allImages.length > 1">
+                            <div class="position-absolute top-50 start-0 end-0 translate-middle-y d-flex justify-content-between px-3" style="pointer-events: none;">
+                                <button @click.stop="prev()" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; pointer-events: auto;">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                <button @click.stop="next()" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; pointer-events: auto;">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </template>
+
+                        <div class="position-absolute top-0 start-0 p-3">
+                            <span class="badge bg-white bg-opacity-90 text-dark text-uppercase ls-1 px-3 py-1 rounded-pill extra-small fw-bold border-0 shadow-sm">
+                                Preview
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Selection Form -->
-                    <div class="col-md-6 p-5 d-flex flex-column">
+                    <div class="col-md-5 p-4 p-md-5 d-flex flex-column bg-white">
                         <div class="mb-auto">
                             <span
-                                class="text-muted extra-small text-uppercase ls-2 fw-bold mb-2 d-block">{{ $product->brand_name ?? 'Chic & Co.' }}</span>
+                                class="text-muted extra-small text-uppercase ls-2 fw-bold mb-1 d-block">{{ $product->brand_name ?? 'Chic & Co.' }}</span>
                             <h2 class="font-heading fw-bold mb-2">{{ $product->name }}</h2>
-                            <p class="fs-5 text-dark mb-4" style="color: var(--color-warm-gold) !important;">
-                                {{ number_format($product->price, 2) }} JOD
+                            <p class="fs-4 fw-bold mb-4" style="color: var(--color-ink-black);">
+                                {{ number_format($product->price, 0) }} JOD
                             </p>
 
                             <!-- Size Selection -->
@@ -144,5 +185,10 @@
         button:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
         
         .transition-premium { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        .thumbnail-item-mini:hover {
+            transform: translateY(-3px) scale(1.05);
+            opacity: 1 !important;
+        }
     </style>
 </div>

@@ -10,16 +10,35 @@ use Illuminate\Support\Str;
 class CartService
 {
     /**
-     * Get or create a persistent visitor ID.
+     * Get or create a persistent visitor ID (Cookie-backed for 30 days).
      */
     public function getVisitorId()
     {
-        if (!session()->has('cart_visitor_id')) {
-            session()->put('cart_visitor_id', (string) Str::uuid());
-            session()->save();
+        $cookieName = 'chic_visitor_id';
+
+        // 1. Check Cookie first (Persistence)
+        $visitorId = Cookie::get($cookieName);
+
+        if (!$visitorId) {
+            // 2. Check Session (Transition)
+            $visitorId = session()->get('cart_visitor_id');
         }
 
-        return session()->get('cart_visitor_id');
+        if (!$visitorId) {
+            // 3. Create New
+            $visitorId = (string) Str::uuid();
+        }
+
+        // Always ensure both are in sync and refreshed
+        if (Cookie::get($cookieName) !== $visitorId) {
+            Cookie::queue($cookieName, $visitorId, 60 * 24 * 30); // 30 days
+        }
+
+        if (session()->get('cart_visitor_id') !== $visitorId) {
+            session()->put('cart_visitor_id', $visitorId);
+        }
+
+        return $visitorId;
     }
 
     /**
@@ -155,6 +174,6 @@ class CartService
             $query->where('session_id', $visitorId);
         }
 
-        return $query->sum('quantity');
+        return (int) $query->sum('quantity');
     }
 }

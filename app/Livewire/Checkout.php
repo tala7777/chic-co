@@ -93,22 +93,7 @@ class Checkout extends Component
 
     public function mount()
     {
-        $cartService = new \App\Services\CartService();
-        $items = $cartService->getItems();
-
-        $this->cart = $items->map(function ($item) {
-            return [
-                'id' => $item->product_id,
-                'name' => $item->product->name,
-                'image' => $item->product->image ?? ($item->product->images->first()?->url ?? asset('images/placeholder.jpg')),
-                'price' => $item->product->discounted_price,
-                'quantity' => $item->quantity,
-                'size' => $item->size,
-                'color' => $item->color
-            ];
-        })->toArray();
-
-        $this->calculateTotal();
+        $this->loadItems();
 
         if (auth()->check()) {
             $user = auth()->user();
@@ -147,14 +132,27 @@ class Checkout extends Component
             } else {
                 $this->paymentMethod = 'cod';
             }
-        } else {
-            // Guest logic: check keys, default to COD if missing
-            $stripeKey = config('services.stripe.secret');
-            $hasStripeKeys = !empty($stripeKey) && !Str::contains($stripeKey, 'placeholder');
-            if (!$hasStripeKeys) {
-                $this->paymentMethod = 'cod';
-            }
         }
+    }
+
+    public function loadItems()
+    {
+        $cartService = new \App\Services\CartService();
+        $items = $cartService->getItems();
+
+        $this->cart = $items->map(function ($item) {
+            return [
+                'id' => $item->product_id,
+                'name' => $item->product->name,
+                'image' => $item->product->image ?? ($item->product->images->first()?->url ?? asset('images/placeholder.jpg')),
+                'price' => $item->product->discounted_price,
+                'quantity' => $item->quantity,
+                'size' => $item->size,
+                'color' => $item->color
+            ];
+        })->toArray();
+
+        $this->calculateTotal();
     }
 
     public function updatedPaymentMethod($value)
@@ -237,7 +235,7 @@ class Checkout extends Component
 
         // Refresh cart
         $cartService = new \App\Services\CartService();
-        $this->mount();
+        $this->loadItems();
 
         if (empty($this->cart)) {
             $this->dispatch('swal:error', ['title' => 'Empty Bag', 'text' => 'Your selection has vanished. Please re-curate.']);

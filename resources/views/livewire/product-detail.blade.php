@@ -1,5 +1,24 @@
 <div class="container py-4 py-md-5 animate-fade-up" 
-     x-data="{ mainImage: '{{ $product->image ?? ($product->images->count() > 0 ? $product->images->first()->url : 'https://via.placeholder.com/800x1200') }}' }">
+     x-data="{ 
+        mainImage: '{{ $product->image ?? ($product->images->count() > 0 ? $product->images->first()->url : 'https://via.placeholder.com/800x1200') }}',
+        allImages: [],
+        next() { 
+            let idx = this.allImages.indexOf(this.mainImage);
+            this.mainImage = this.allImages[(idx + 1) % this.allImages.length];
+        },
+        prev() {
+            let idx = this.allImages.indexOf(this.mainImage);
+            this.mainImage = this.allImages[(idx - 1 + this.allImages.length) % this.allImages.length];
+        }
+     }"
+     x-init="
+        allImages = [
+            '{{ $product->image ?? 'https://via.placeholder.com/800x1200' }}',
+            @foreach($product->images as $img)
+                '{{ $img->url }}',
+            @endforeach
+        ].filter((v, i, a) => a.indexOf(v) === i);
+     ">
     
     @php 
         // Ensure we handle both model instances and plain objects consistently
@@ -31,11 +50,13 @@
 
     <style>
         .gallery-main-container { 
-            width: 100%;
+            width: 80%;
+            margin: 0 auto;
             aspect-ratio: 4/5; /* Standardized ratio */
             background-color: #f8f8f8;
             border: 1px solid rgba(0,0,0,0.02);
             overflow: hidden;
+            position: relative;
         }
         @media (max-width: 768px) {
             .gallery-main-container { aspect-ratio: 1/1; }
@@ -78,34 +99,62 @@
         .ls-2 { letter-spacing: 2px; }
 
         @media (min-width: 992px) {
-            .ps-lg-3 {
+            .ps-lg-4 {
                 position: sticky;
                 top: 100px;
             }
         }
+
+        .gallery-arrow {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .gallery-arrow:hover {
+            transform: scale(1.1);
+            background: var(--color-ink-black);
+            color: white;
+        }
+        .opacity-75 { opacity: 0.75; }
+        .hover-opacity-100:hover { opacity: 1 !important; transform: scale(1.02); }
     </style>
     
     <!-- Breadcrumbs -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb extra-small text-uppercase ls-1 px-2">
-            <li class="breadcrumb-item"><a href="{{ route('shop.index') }}" class="text-decoration-none text-muted">Archive</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('shop.index', ['category' => $product->category_id]) }}" class="text-decoration-none text-muted">{{ $product->category->name ?? 'Collection' }}</a></li>
-            <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">{{ $product->name }}</li>
+    <nav aria-label="breadcrumb" class="mb-5 px-1">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ route('shop.index') }}"
+                    class="text-decoration-none text-muted extra-small text-uppercase ls-1">The Archive</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('shop.index', ['category' => $product->category_id]) }}" 
+                    class="text-decoration-none text-muted extra-small text-uppercase ls-1">{{ $product->category->name ?? 'Collection' }}</a></li>
+            <li class="breadcrumb-item active fw-bold extra-small text-uppercase ls-1"
+                style="color: var(--color-primary-blush);" aria-current="page">
+                {{ $product->name }}
+            </li>
         </ol>
     </nav>
 
-    <div class="row g-4 g-lg-5">
+    <div class="row g-5">
         <!-- Gallery Section -->
-        <div class="col-lg-7">
+        <div class="col-lg-6">
             <div class="row g-3">
                 @if($allImages->count() > 1)
                 <div class="col-md-2 d-none d-md-block">
                     <div class="d-flex flex-column gap-3 thumbnail-scroll-container">
-                        @foreach($allImages as $index => $img)
-                            <div class="ratio ratio-4x5 cursor-pointer rounded-3 overflow-hidden border-2 transition-premium shadow-sm" 
-                                 :style="mainImage === '{{ $img->url }}' ? 'border-color: #E87A90; opacity: 1;' : 'border-color: transparent; opacity: 0.5;'"
+                        @foreach($allImages as $img)
+                            {{-- We show all but hide the one that matches mainImage using Alpine for reactivity --}}
+                            <div class="ratio ratio-4x5 cursor-pointer rounded-4 overflow-hidden border-0 transition-premium shadow-sm"
+                                 x-show="mainImage !== '{{ $img->url }}'"
+                                 x-transition:enter="transition ease-out duration-300"
                                  @click="mainImage = '{{ $img->url }}'">
-                                <img src="{{ $img->url }}" class="object-fit-cover w-100 h-100" alt="View detail {{ $index + 1 }}">
+                                <img src="{{ $img->url }}" class="object-fit-cover w-100 h-100 opacity-75 hover-opacity-100" alt="Detail View">
                             </div>
                         @endforeach
                     </div>
@@ -113,29 +162,41 @@
                 @endif
 
                 <div class="{{ $allImages->count() > 1 ? 'col-md-10' : 'col-md-12' }}">
-                    <div class="position-relative overflow-hidden rounded-4 bg-light shadow-sm gallery-main-container">
+                    <div class="position-relative overflow-hidden rounded-5 bg-light shadow-sm gallery-main-container" style="border: 1px solid rgba(0,0,0,0.03);">
                         <img :src="mainImage" class="w-100 h-100 object-fit-cover main-display-img" 
-                             x-transition:enter="transition ease-out duration-300" 
-                             x-transition:enter-start="opacity-0" 
-                             x-transition:enter-end="opacity-100" 
+                             x-transition:enter="transition ease-out duration-400" 
+                             x-transition:enter-start="opacity-0 scale-95" 
+                             x-transition:enter-end="opacity-100 scale-100" 
                              :key="mainImage"
                              alt="{{ $product->name }}">
                         
-                        <div class="position-absolute top-0 start-0 p-3 pt-4">
-                            <span class="badge bg-white bg-opacity-95 text-dark text-uppercase ls-1 px-3 py-2 rounded-pill shadow-sm border-0 font-heading fw-bold" style="font-size: 0.6rem;">
+                        <!-- Gallery Arrows -->
+                        <template x-if="allImages.length > 1">
+                            <div style="pointer-events: none;" class="position-absolute top-50 start-0 end-0 translate-middle-y d-flex justify-content-between px-3">
+                                <button @click.stop="prev()" class="gallery-arrow" style="pointer-events: auto;">
+                                    <i class="fa-solid fa-chevron-left text-dark"></i>
+                                </button>
+                                <button @click.stop="next()" class="gallery-arrow" style="pointer-events: auto;">
+                                    <i class="fa-solid fa-chevron-right text-dark"></i>
+                                </button>
+                            </div>
+                        </template>
+
+                        <div class="position-absolute top-0 start-0 p-4">
+                            <span class="badge bg-white bg-opacity-95 text-dark text-uppercase ls-1 px-4 py-2 rounded-pill shadow-sm border-0 font-heading fw-bold" style="font-size: 0.65rem;">
                                  {{ $product->aesthetic }} Curator's Collection
                             </span>
                         </div>
                     </div>
 
                     @if($allImages->count() > 1)
-                    <div class="d-md-none d-flex gap-2 mt-3 overflow-auto pb-2 scrollbar-hide">
+                    <div class="d-md-none d-flex gap-3 mt-4 overflow-auto pb-2 scrollbar-hide">
                         @foreach($allImages as $img)
-                            <div class="flex-shrink-0 cursor-pointer rounded-3 overflow-hidden border-2 shadow-sm" 
-                                 style="width: 70px; aspect-ratio: 4/5;"
-                                 :style="mainImage === '{{ $img->url }}' ? 'border-color: #E87A90;' : 'border-color: transparent;'"
+                            <div class="flex-shrink-0 cursor-pointer rounded-4 overflow-hidden shadow-sm" 
+                                 x-show="mainImage !== '{{ $img->url }}'"
+                                 style="width: 80px; aspect-ratio: 4/5;"
                                  @click="mainImage = '{{ $img->url }}'">
-                                <img src="{{ $img->url }}" class="w-100 h-100 object-fit-cover" alt="View detail">
+                                <img src="{{ $img->url }}" class="w-100 h-100 object-fit-cover opacity-75" alt="Detail View">
                             </div>
                         @endforeach
                     </div>
@@ -145,18 +206,23 @@
         </div>
 
         <!-- Info & Buy Section -->
-        <div class="col-lg-5">
-            <div class="ps-lg-3">
+        <div class="col-lg-6">
+            <div class="ps-lg-4 py-lg-2">
                 <div class="mb-4">
-                    <span class="text-muted extra-small text-uppercase ls-2 fw-bold mb-2 d-block opacity-50">SKU: CP-{{ str_pad($product->id, 5, '0', STR_PAD_LEFT) }}</span>
-                    <h1 class="font-heading fw-bold mb-2 display-6" style="letter-spacing: -1px;">{{ $product->name }}</h1>
-                    <div class="d-flex align-items-center gap-3 mt-2">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="text-muted extra-small text-uppercase ls-2 fw-bold opacity-50">SKU: CP-{{ str_pad($product->id, 5, '0', STR_PAD_LEFT) }}</span>
+                        <span class="badge bg-dark rounded-pill px-3 py-1 text-uppercase ls-1 fw-bold" style="font-size: 0.6rem;">{{ $product->brand_name ?? 'Chic Elite' }} Archive</span>
+                    </div>
+                    <h1 class="font-heading fw-bold mb-3 display-5" style="letter-spacing: -1px;">{{ $product->name }}</h1>
+                    <div class="d-flex align-items-center gap-4 mt-3">
                         @if($product->hasDiscount())
-                            <span class="h3 mb-0 fw-bold font-heading text-dark">{{ number_format($product->discounted_price, 0) }} JOD</span>
-                            <span class="text-muted text-decoration-line-through small">{{ number_format($product->price, 0) }} JOD</span>
-                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1 text-uppercase fw-bold" style="font-size: 0.6rem;">-{{ (float)$product->effective_discount }}% Exclusive</span>
+                            <div class="d-flex flex-column">
+                                <span class="h2 mb-0 fw-bold font-heading text-dark">{{ number_format($product->discounted_price, 0) }} JOD</span>
+                                <span class="text-muted text-decoration-line-through small opacity-50">{{ number_format($product->price, 0) }} JOD</span>
+                            </div>
+                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1 text-uppercase fw-bold" style="font-size: 0.6rem;">-{{ (float)$product->effective_discount }}% Priority Privilege</span>
                         @else
-                            <span class="h3 mb-0 fw-bold font-heading text-dark">{{ number_format($product->price, 0) }} JOD</span>
+                            <span class="h2 mb-0 fw-bold font-heading text-dark">{{ number_format($product->price, 0) }} JOD</span>
                         @endif
                         
                         @if($this->getStockForVariant() <= 0)
@@ -165,26 +231,25 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <span class="badge bg-dark rounded-pill px-3 py-1 text-uppercase ls-1 fw-bold" style="font-size: 0.6rem;">Archive of {{ $product->brand_name ?? 'Chic Elite' }}</span>
+                <div class="mb-5">
+                    <div class="p-4 rounded-4 bg-white border border-light shadow-sm mb-4">
+                        <p class="text-muted mb-0 small" style="line-height: 1.8;">
+                            {{ $product->description }}
+                        </p>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap gap-2">
                         @foreach($product->occasions ?? [] as $occ)
-                            <span class="badge bg-light text-dark rounded-pill px-2 py-1 text-uppercase ls-1 opacity-75" style="font-size: 0.55rem; border: 1px solid rgba(0,0,0,0.1);">{{ $occ }}</span>
+                            <span class="badge bg-light text-dark rounded-pill px-3 py-2 text-uppercase ls-1 opacity-75" style="font-size: 0.6rem; border: 1px solid rgba(0,0,0,0.05);">{{ $occ }}</span>
                         @endforeach
                     </div>
                 </div>
 
-                <div class="p-4 rounded-4 bg-light border-0 mb-5">
-                    <p class="text-muted mb-0 small" style="line-height: 1.7; font-family: 'Inter', sans-serif;">
-                        {{ $product->description }}
-                    </p>
-                </div>
-
                 <div class="mb-5">
                     @if(count($availableColors) > 0)
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between mb-3 px-1">
-                                <label class="extra-small text-muted text-uppercase fw-bold ls-2">Visual Tone</label>
+                        <div class="mb-5">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <label class="extra-small text-muted text-uppercase fw-bold ls-2">Curated Aesthetic</label>
                                 <span class="extra-small text-dark fw-bold text-uppercase ls-1">{{ $selectedColor }}</span>
                             </div>
                             <div class="d-flex flex-wrap gap-3">
@@ -201,17 +266,19 @@
                     @endif
 
                     <div class="mb-4">
-                        <label class="extra-small text-muted text-uppercase fw-bold ls-2">Ascending Scale</label>
-                        <a href="javascript:void(0)" class="extra-small text-muted text-decoration-none border-bottom border-muted text-uppercase ls-1 opacity-50">Size Matrix</a>
-                    </div>
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach($product->sizes as $size)
-                            <button wire:click="$set('selectedSize', '{{ $size }}')" 
-                                    class="size-option-btn {{ $selectedSize === $size ? 'active' : '' }}"
-                                    {{ !$this->isSizeAvailable($size) ? 'disabled' : '' }}>
-                                {{ $size }}
-                            </button>
-                        @endforeach
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <label class="extra-small text-muted text-uppercase fw-bold ls-2">Dimensional Scale</label>
+                            <a href="javascript:void(0)" class="extra-small text-muted text-decoration-none border-bottom border-muted text-uppercase ls-1 opacity-50">Size Reference</a>
+                        </div>
+                        <div class="d-flex flex-wrap gap-3">
+                            @foreach($product->sizes as $size)
+                                <button wire:click="$set('selectedSize', '{{ $size }}')" 
+                                        class="size-option-btn {{ $selectedSize === $size ? 'active' : '' }}"
+                                        {{ !$this->isSizeAvailable($size) ? 'disabled' : '' }}>
+                                    {{ $size }}
+                                </button>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
 
@@ -223,7 +290,7 @@
                         </button>
                     @else
                         <button disabled class="btn btn-light btn-lg py-4 flex-grow-1 rounded-pill text-uppercase ls-1 fw-bold text-muted border">
-                            {{ $selectedSize ? 'Unavailable' : 'Select Options' }}
+                            {{ $selectedSize ? 'Unavailable' : 'Complete Selection' }}
                         </button>
                     @endif
                     
@@ -233,20 +300,28 @@
                 </div>
 
                 <div class="border-top pt-4">
-                    <div class="row g-3">
+                    <div class="row g-4">
                         <div class="col-6">
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <i class="fa-solid fa-truck-fast text-dark opacity-75 small"></i>
-                                <span class="extra-small text-uppercase ls-1 fw-bold">Amman Concierge</span>
+                            <div class="d-flex align-items-center gap-3 mb-1">
+                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                    <i class="fa-solid fa-truck-fast text-dark small opacity-75"></i>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span class="extra-small text-uppercase ls-1 fw-bold">Amman Prime</span>
+                                    <span class="text-muted extra-small opacity-75">Express Delivery</span>
+                                </div>
                             </div>
-                            <p class="text-muted extra-small mb-0 opacity-75">24-48 Hour Delivery</p>
                         </div>
-                        <div class="col-6 text-end">
-                            <div class="d-flex align-items-center gap-2 mb-1 justify-content-end">
-                                <i class="fa-solid fa-gem text-dark opacity-75 small"></i>
-                                <span class="extra-small text-uppercase ls-1 fw-bold">Authentic Archive</span>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-3 mb-1">
+                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                    <i class="fa-solid fa-gem text-dark small opacity-75"></i>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span class="extra-small text-uppercase ls-1 fw-bold">Archive Verified</span>
+                                    <span class="text-muted extra-small opacity-75">Genuine Luxury</span>
+                                </div>
                             </div>
-                            <p class="text-muted extra-small mb-0 opacity-75">Certified Piece</p>
                         </div>
                     </div>
                 </div>
