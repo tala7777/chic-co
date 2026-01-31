@@ -48,11 +48,11 @@
                             ->values();
                     @endphp
                     <div class="row align-items-center g-5">
-                        <div class="col-lg-7">
-                            <div class="lookbook-image-container overflow-hidden rounded-5 shadow-2xl position-relative"
+                        <div class="col-lg-5">
+                            <div class="lookbook-image-container overflow-hidden rounded-5 shadow-2xl position-relative mx-auto"
                                 x-data="{ activeImg: '{{ $mainUrl }}' }">
                                 <img :src="activeImg" class="w-100 h-100 object-fit-cover"
-                                    style="min-height: 500px; transform: scale(1); transition: all 0.8s ease;"
+                                    style="min-height: 300px; transform: scale(1); transition: all 0.8s ease;"
                                     alt="{{ $product->name }}">
 
                                 @if($allImages->count() > 1)
@@ -69,7 +69,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="col-lg-5 px-lg-5 text-start">
+                        <div class="col-lg-7 px-lg-5 text-start">
                             <div class="ps-lg-4">
                                 <span
                                     class="badge bg-primary-subtle text-primary border-0 rounded-pill px-4 py-2 text-uppercase extra-small ls-1 fw-bold mb-4">
@@ -146,8 +146,9 @@
         }
 
         .lookbook-image-container {
-            height: 550px;
-            /* Reduced from 750px */
+            height: 350px;
+            max-width: 450px;
+            margin: 0 auto;
         }
     </style>
 </div>

@@ -124,7 +124,13 @@
             color: white;
         }
         .opacity-75 { opacity: 0.75; }
+        .opacity-60 { opacity: 0.6; }
         .hover-opacity-100:hover { opacity: 1 !important; transform: scale(1.02); }
+        .border-primary-blush { border-color: var(--color-primary-blush) !important; }
+        
+        .ratio-4x5 {
+            --bs-aspect-ratio: 125%;
+        }
     </style>
     
     <!-- Breadcrumbs -->
@@ -147,14 +153,13 @@
             <div class="row g-3">
                 @if($allImages->count() > 1)
                 <div class="col-md-2 d-none d-md-block">
-                    <div class="d-flex flex-column gap-3 thumbnail-scroll-container">
+                    <div class="d-flex flex-column gap-3 thumbnail-scroll-container px-1" style="max-height: 600px;">
                         @foreach($allImages as $img)
-                            {{-- We show all but hide the one that matches mainImage using Alpine for reactivity --}}
-                            <div class="ratio ratio-4x5 cursor-pointer rounded-4 overflow-hidden border-0 transition-premium shadow-sm"
-                                 x-show="mainImage !== '{{ $img->url }}'"
-                                 x-transition:enter="transition ease-out duration-300"
+                            <div class="ratio ratio-4x5 cursor-pointer rounded-4 overflow-hidden border-2 transition-premium shadow-sm"
+                                 :class="mainImage === '{{ $img->url }}' ? 'border-primary-blush opacity-100' : 'border-transparent opacity-60 hover-opacity-100'"
+                                 style="border-style: solid;"
                                  @click="mainImage = '{{ $img->url }}'">
-                                <img src="{{ $img->url }}" class="object-fit-cover w-100 h-100 opacity-75 hover-opacity-100" alt="Detail View">
+                                <img src="{{ $img->url }}" class="object-fit-cover w-100 h-100" alt="Boutique View">
                             </div>
                         @endforeach
                     </div>
@@ -192,11 +197,11 @@
                     @if($allImages->count() > 1)
                     <div class="d-md-none d-flex gap-3 mt-4 overflow-auto pb-2 scrollbar-hide">
                         @foreach($allImages as $img)
-                            <div class="flex-shrink-0 cursor-pointer rounded-4 overflow-hidden shadow-sm" 
-                                 x-show="mainImage !== '{{ $img->url }}'"
-                                 style="width: 80px; aspect-ratio: 4/5;"
+                            <div class="flex-shrink-0 cursor-pointer rounded-4 overflow-hidden shadow-sm border-2 transition-premium" 
+                                 :class="mainImage === '{{ $img->url }}' ? 'border-primary-blush opacity-100' : 'border-transparent opacity-60'"
+                                 style="width: 80px; aspect-ratio: 4/5; border-style: solid;"
                                  @click="mainImage = '{{ $img->url }}'">
-                                <img src="{{ $img->url }}" class="w-100 h-100 object-fit-cover opacity-75" alt="Detail View">
+                                <img src="{{ $img->url }}" class="w-100 h-100 object-fit-cover" alt="Boutique View">
                             </div>
                         @endforeach
                     </div>

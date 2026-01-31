@@ -8,6 +8,18 @@
     <div class="row g-5">
         <!-- Main Checkout Column -->
         <div class="col-lg-8">
+            @if($isMockMode)
+                <div
+                    class="alert alert-warning rounded-4 border-0 shadow-sm mb-5 animate-fade-in d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-flask-vial fs-4"></i>
+                    <div>
+                        <h6 class="mb-1 fw-bold">Demo Mode Active</h6>
+                        <p class="small mb-0 opacity-75">Stripe keys are not configured. Card payments will be simulated for
+                            testing purposes.</p>
+                    </div>
+                </div>
+            @endif
+
             <form wire:submit.prevent="confirmOrder">
 
                 <!-- 1. Contact Info -->
@@ -185,10 +197,18 @@
 
                             @if($selectedPaymentMethodId === 'new')
                                 <div class="new-card-form p-4 bg-light rounded-4">
-                                    <div wire:ignore>
-                                        <!-- Stripe Payment Element -->
-                                        <div id="payment-element"></div>
-                                    </div>
+                                    @if($isMockMode)
+                                        <div class="text-center py-3">
+                                            <i class="fa-solid fa-credit-card mb-3 fs-2 opacity-25"></i>
+                                            <h6 class="fw-bold mb-1">Simulated Card Entry</h6>
+                                            <p class="small text-muted mb-0">Proceeding with "Complete Purchase" will simulate a successful card authorization.</p>
+                                        </div>
+                                    @else
+                                        <div wire:ignore>
+                                            <!-- Stripe Payment Element -->
+                                            <div id="payment-element"></div>
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
                         </div>
@@ -200,218 +220,218 @@
                                 order arrives.</p>
                         </div>
                     @endif
-        </div>
+                </div>
 
-        <hr class="my-5">
+                <hr class="my-5">
 
-        <button class="w-100 btn btn-dark btn-lg py-4 rounded-pill text-uppercase ls-2 fw-bold shadow-lg" type="submit"
-            wire:loading.attr="disabled">
-            <span wire:loading.remove>Complete Purchase • {{ number_format($total, 0) }} JOD</span>
-            <span wire:loading><i class="fa-solid fa-spinner fa-spin me-2"></i> processing...</span>
-        </button>
-        </form>
+                <button class="w-100 btn btn-dark btn-lg py-4 rounded-pill text-uppercase ls-2 fw-bold shadow-lg"
+                    type="submit" wire:loading.attr="disabled">
+                    <span wire:loading.remove>Complete Purchase • {{ number_format($total, 0) }} JOD</span>
+                    <span wire:loading><i class="fa-solid fa-spinner fa-spin me-2"></i> processing...</span>
+                </button>
+            </form>
 
-        @push('scripts')
-            <script src="https://js.stripe.com/v3/"></script>
-            <script>
-                document.addEventListener('livewire:initialized', () => {
-                    let stripe = null;
-                    let elements = null;
+            @push('scripts')
+                <script src="https://js.stripe.com/v3/"></script>
+                <script>
+                    document.addEventListener('livewire:initialized', () => {
+                        let stripe = null;
+                        let elements = null;
 
-                    const initStripe = async (clientSecret) => {
-                        if (!clientSecret) return;
+                        const initStripe = async (clientSecret) => {
+                            if (!clientSecret) return;
 
-                        if (!stripe) {
-                            stripe = Stripe('{{ config('services.stripe.key') }}');
-                        }
+                            if (!stripe) {
+                                stripe = Stripe('{{ config('services.stripe.key') }}');
+                            }
 
-                        const appearance = { theme: 'stripe' };
-                        elements = stripe.elements({ appearance, clientSecret });
-                        const paymentElement = elements.create('payment');
-                        paymentElement.mount('#payment-element');
-                    };
+                            const appearance = { theme: 'stripe' };
+                            elements = stripe.elements({ appearance, clientSecret });
+                            const paymentElement = elements.create('payment');
+                            paymentElement.mount('#payment-element');
+                        };
 
-                    // Initialize if client secret is present on load
-                    @if($clientSecret)
-                        initStripe('{{ $clientSecret }}');
-                    @endif
+                        // Initialize if client secret is present on load
+                        @if($clientSecret)
+                            initStripe('{{ $clientSecret }}');
+                        @endif
 
-                    // Listen for component updates calling for init
-                    Livewire.on('stripe-init', (data) => {
-                        const secret = data.clientSecret || data[0].clientSecret;
-                        initStripe(secret);
-                    });
-
-                    // Handle the specific event emitted by Checkout.php `placeOrder` method:
-                    Livewire.on('stripe-init', async (data) => {
-                        const secret = data.clientSecret || data[0].clientSecret;
-                        const orderId = data.orderId || data[0].orderId;
-
-                        if (!elements) {
-                            await initStripe(secret);
-                        }
-
-                        const { error } = await stripe.confirmPayment({
-                            elements,
-                            confirmParams: {
-                                return_url: '{{ route('stripe.success') }}' + '?order_id=' + orderId,
-                            },
+                        // Listen for component updates calling for init
+                        Livewire.on('stripe-init', (data) => {
+                            const secret = data.clientSecret || data[0].clientSecret;
+                            initStripe(secret);
                         });
 
-                        if (error) {
-                            Livewire.dispatch('swal:error', { title: 'Payment Failed', text: error.message });
-                        }
-                    });
-                });
-            </script>
-        @endpush
-    </div>
+                        // Handle the specific event emitted by Checkout.php `placeOrder` method:
+                        Livewire.on('stripe-init', async (data) => {
+                            const secret = data.clientSecret || data[0].clientSecret;
+                            const orderId = data.orderId || data[0].orderId;
 
-    <!-- Sidebar Summary -->
-    <div class="col-lg-4">
-        <div class="summary-sidebar sticky-top" style="top: 100px;">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-header bg-dark text-white p-4 border-0">
-                    <h5 class="mb-0 font-heading text-uppercase ls-1" style="color: white;">Your Order</h5>
-                </div>
-                <div class="card-body p-4">
-                    <ul class="list-unstyled mb-4">
-                        @foreach($cart as $item)
-                            <li class="d-flex justify-content-between align-items-center mb-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="position-relative me-3">
-                                        <img src="{{ $item['image'] }}" class="rounded-3"
-                                            style="width: 50px; height: 65px; object-fit: cover;">
-                                        <span
-                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark"
-                                            style="font-size: 0.6rem;">
-                                            {{ $item['quantity'] }}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 extra-small fw-bold text-uppercase">{{ $item['name'] }}</h6>
-                                        <div class="d-flex gap-2">
-                                            @if(isset($item['size']) && $item['size'])
-                                                <small class="text-muted extra-small">SIZE: {{ $item['size'] }}</small>
-                                            @endif
-                                            @if(isset($item['color']) && $item['color'])
-                                                <div class="d-flex align-items-center gap-1">
-                                                    <small class="text-muted extra-small">COLOR:</small>
-                                                    <div class="rounded-circle border"
-                                                        style="width: 10px; height: 10px; background-color: {{ $item['color'] }};"
-                                                        title="{{ $item['color'] }}"></div>
-                                                </div>
-                                            @endif
+                            if (!elements) {
+                                await initStripe(secret);
+                            }
+
+                            const { error } = await stripe.confirmPayment({
+                                elements,
+                                confirmParams: {
+                                    return_url: '{{ route('stripe.success') }}' + '?order_id=' + orderId,
+                                },
+                            });
+
+                            if (error) {
+                                Livewire.dispatch('swal:error', { title: 'Payment Failed', text: error.message });
+                            }
+                        });
+                    });
+                </script>
+            @endpush
+        </div>
+
+        <!-- Sidebar Summary -->
+        <div class="col-lg-4">
+            <div class="summary-sidebar sticky-top" style="top: 100px;">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-dark text-white p-4 border-0">
+                        <h5 class="mb-0 font-heading text-uppercase ls-1" style="color: white;">Your Order</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-4">
+                            @foreach($cart as $item)
+                                <li class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="position-relative me-3">
+                                            <img src="{{ $item['image'] }}" class="rounded-3"
+                                                style="width: 50px; height: 65px; object-fit: cover;">
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark"
+                                                style="font-size: 0.6rem;">
+                                                {{ $item['quantity'] }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 extra-small fw-bold text-uppercase">{{ $item['name'] }}</h6>
+                                            <div class="d-flex gap-2">
+                                                @if(isset($item['size']) && $item['size'])
+                                                    <small class="text-muted extra-small">SIZE: {{ $item['size'] }}</small>
+                                                @endif
+                                                @if(isset($item['color']) && $item['color'])
+                                                    <div class="d-flex align-items-center gap-1">
+                                                        <small class="text-muted extra-small">COLOR:</small>
+                                                        <div class="rounded-circle border"
+                                                            style="width: 10px; height: 10px; background-color: {{ $item['color'] }};"
+                                                            title="{{ $item['color'] }}"></div>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <span class="fw-bold">{{ number_format($item['price'] * $item['quantity'], 0) }}
-                                    JOD</span>
-                            </li>
-                        @endforeach
-                    </ul>
+                                    <span class="fw-bold">{{ number_format($item['price'] * $item['quantity'], 0) }}
+                                        JOD</span>
+                                </li>
+                            @endforeach
+                        </ul>
 
-                    <div class="border-top pt-3 mb-3">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted small">Subtotal</span>
-                            <span class="fw-bold">{{ number_format($total, 0) }} JOD</span>
+                        <div class="border-top pt-3 mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Subtotal</span>
+                                <span class="fw-bold">{{ number_format($total, 0) }} JOD</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Shipping</span>
+                                <span class="text-success small fw-bold">Complimentary</span>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted small">Shipping</span>
-                            <span class="text-success small fw-bold">Complimentary</span>
-                        </div>
-                    </div>
 
-                    <div class="border-top pt-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 fw-bold">Total</h5>
-                            <h4 class="mb-0 fw-bold">{{ number_format($total, 0) }} JOD</h4>
+                        <div class="border-top pt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">Total</h5>
+                                <h4 class="mb-0 fw-bold">{{ number_format($total, 0) }} JOD</h4>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="mt-4 p-4 text-center">
-                <p class="text-muted extra-small">
-                    <i class="fa-solid fa-shield-halved me-2"></i> Guaranteed safe and secure checkout. <br> Powered
-                    by Amman Luxury Fintech.
-                </p>
+                <div class="mt-4 p-4 text-center">
+                    <p class="text-muted extra-small">
+                        <i class="fa-solid fa-shield-halved me-2"></i> Guaranteed safe and secure checkout. <br> Powered
+                        by Amman Luxury Fintech.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<style>
-    .step-number {
-        width: 32px;
-        height: 32px;
-        background: var(--color-ink-black);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 0.9rem;
-    }
-
-    .address-card,
-    .payment-card {
-        border: 2px solid #eee;
-        border-radius: 16px;
-        padding: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-        background: white;
-        height: 100%;
-    }
-
-    .address-card:hover,
-    .payment-card:hover {
-        border-color: #ddd;
-        transform: translateY(-2px);
-    }
-
-    .address-card.active,
-    .payment-card.active {
-        border-color: var(--color-ink-black);
-        background: #f8f9fa;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .border-dashed {
-        border-style: dashed !important;
-    }
-
-    .extra-small {
-        font-size: 0.75rem;
-    }
-
-    .ls-2 {
-        letter-spacing: 2px;
-    }
-
-    .animate-fade-in {
-        animation: fadeIn 0.5s ease-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
+    <style>
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--color-ink-black);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        .address-card,
+        .payment-card {
+            border: 2px solid #eee;
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: white;
+            height: 100%;
         }
-    }
 
-    .form-control:focus,
-    .form-select:focus {
-        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-        border-color: #999;
-    }
-</style>
+        .address-card:hover,
+        .payment-card:hover {
+            border-color: #ddd;
+            transform: translateY(-2px);
+        }
+
+        .address-card.active,
+        .payment-card.active {
+            border-color: var(--color-ink-black);
+            background: #f8f9fa;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .border-dashed {
+            border-style: dashed !important;
+        }
+
+        .extra-small {
+            font-size: 0.75rem;
+        }
+
+        .ls-2 {
+            letter-spacing: 2px;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+            border-color: #999;
+        }
+    </style>
 </div>

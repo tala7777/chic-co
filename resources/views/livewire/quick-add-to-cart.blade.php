@@ -37,7 +37,7 @@
 
                 <div class="row g-0">
                     <!-- Product Image & Mini Gallery -->
-                    <div class="col-md-7 position-relative" style="background: var(--color-cloud); min-height: 500px;"
+                    <div class="col-md-7 position-relative d-flex bg-light" style="min-height: 500px;"
                          x-data="{ 
                             next() { 
                                 let idx = this.allImages.findIndex(i => i.url === this.mainImage);
@@ -48,29 +48,46 @@
                                 this.mainImage = this.allImages[(idx - 1 + this.allImages.length) % this.allImages.length].url;
                             }
                          }">
-                        <img :src="mainImage"
-                            alt="{{ $product->name }}" class="w-100 h-100 object-fit-cover" 
-                            x-transition:enter="transition ease-out duration-300" 
-                            x-transition:enter-start="opacity-0" 
-                            x-transition:enter-end="opacity-100"
-                            :key="mainImage">
                         
-                        <!-- Arrows Navigation -->
+                        <!-- Side Thumbnails (Vertical Market-Place Style) -->
                         <template x-if="allImages.length > 1">
-                            <div class="position-absolute top-50 start-0 end-0 translate-middle-y d-flex justify-content-between px-3" style="pointer-events: none;">
-                                <button @click.stop="prev()" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; pointer-events: auto;">
-                                    <i class="fa-solid fa-chevron-left"></i>
-                                </button>
-                                <button @click.stop="next()" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; pointer-events: auto;">
-                                    <i class="fa-solid fa-chevron-right"></i>
-                                </button>
+                            <div class="d-none d-md-flex flex-column gap-2 p-3 bg-white border-end shadow-sm" style="width: 85px; z-index: 5; max-height: 500px; overflow-y: auto;">
+                                <template x-for="(img, index) in allImages" :key="index">
+                                    <div @click="mainImage = img.url" 
+                                         class="ratio ratio-4x5 cursor-pointer rounded-2 overflow-hidden border-2 transition-premium"
+                                         :class="mainImage === img.url ? 'border-primary-blush opacity-100' : 'border-transparent opacity-60 hover-opacity-100'"
+                                         style="border-style: solid; cursor: pointer;">
+                                        <img :src="img.url" class="w-100 h-100 object-fit-cover">
+                                    </div>
+                                </template>
                             </div>
                         </template>
 
-                        <div class="position-absolute top-0 start-0 p-3">
-                            <span class="badge bg-white bg-opacity-90 text-dark text-uppercase ls-1 px-3 py-1 rounded-pill extra-small fw-bold border-0 shadow-sm">
-                                Preview
-                            </span>
+                        <div class="flex-grow-1 position-relative overflow-hidden">
+                            <img :src="mainImage"
+                                alt="{{ $product->name }}" class="w-100 h-100 object-fit-cover" 
+                                x-transition:enter="transition ease-out duration-300" 
+                                x-transition:enter-start="opacity-0" 
+                                x-transition:enter-end="opacity-100"
+                                :key="mainImage">
+                            
+                            <!-- Arrows Navigation -->
+                            <template x-if="allImages.length > 1">
+                                <div class="position-absolute top-50 start-0 end-0 translate-middle-y d-flex justify-content-between px-3" style="pointer-events: none;">
+                                    <button @click.stop="prev()" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; pointer-events: auto;">
+                                        <i class="fa-solid fa-chevron-left small"></i>
+                                    </button>
+                                    <button @click.stop="next()" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; pointer-events: auto;">
+                                        <i class="fa-solid fa-chevron-right small"></i>
+                                    </button>
+                                </div>
+                            </template>
+
+                            <div class="position-absolute top-0 start-0 p-3">
+                                <span class="badge bg-white bg-opacity-90 text-dark text-uppercase ls-1 px-3 py-1 rounded-pill extra-small fw-bold border-0 shadow-sm">
+                                    Preview
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -190,5 +207,10 @@
             transform: translateY(-3px) scale(1.05);
             opacity: 1 !important;
         }
+        .ratio-4x5 {
+            --bs-aspect-ratio: 125%;
+        }
+        .border-primary-blush { border-color: var(--color-primary-blush) !important; }
+        .opacity-60 { opacity: 0.6; }
     </style>
 </div>

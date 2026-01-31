@@ -113,11 +113,11 @@ class Checkout extends Component
             $this->savedPaymentMethods = UserPaymentMethod::where('user_id', $user->id)->get();
             $defaultPay = $this->savedPaymentMethods->where('is_default', true)->first();
 
-            // Check for valid Stripe keys
+            // Check for valid Stripe keys - define Mock Mode if placeholders exist
             $stripeKey = config('services.stripe.secret');
-            $hasStripeKeys = !empty($stripeKey) && !Str::contains($stripeKey, 'placeholder');
+            $this->isMockMode = empty($stripeKey) || Str::contains($stripeKey, 'placeholder');
 
-            if ($hasStripeKeys) {
+            if (!$this->isMockMode) {
                 if ($defaultPay) {
                     $this->selectedPaymentMethodId = $defaultPay->id;
                     $this->paymentMethod = 'card';
@@ -130,10 +130,13 @@ class Checkout extends Component
                     $this->initializeStripe();
                 }
             } else {
-                $this->paymentMethod = 'cod';
+                // In Mock Mode, we still allow selecting card for demo purposes
+                $this->paymentMethod = 'card';
             }
         }
     }
+
+    public $isMockMode = false;
 
     public function loadItems()
     {
@@ -164,9 +167,8 @@ class Checkout extends Component
 
     public function initializeStripe()
     {
-        if (Str::contains(config('services.stripe.secret'), 'placeholder')) {
-            session()->flash('error', 'Stripe keys are placeholders. Please update .env with valid keys.');
-            return;
+        if ($this->isMockMode) {
+            return; // Skip Stripe init in Mock Mode
         }
 
         try {
@@ -290,12 +292,22 @@ class Checkout extends Component
 
         // STRIPE FLOW
         if ($this->paymentMethod === 'card') {
-            // Re-check for placeholders
-            if (Str::contains(config('services.stripe.secret'), 'placeholder')) {
-                $this->dispatch('swal:error', ['title' => 'Config Error', 'text' => 'Stripe keys are placeholders. Cannot process payment.']);
-                return;
+            // Handle Mock Flow
+            if ($this->isMockMode) {
+                $transactionId = 'MOCK_' . Str::random(12);
+                $order->update([
+                    'payment_status' => 'paid',
+                    'transaction_id' => $transactionId
+                ]);
+
+                $orderService->finalizeOrder($order);
+                $cartService->clear();
+
+                return redirect()->route('checkout.success', ['order' => $order->id])
+                    ->with('success', 'Demo Payment successful! (Mock Mode enabled via placeholder keys)');
             }
 
+            // Real Stripe Flow logic...
             try {
                 $stripeService = new \App\Services\StripeService();
 
