@@ -94,7 +94,10 @@ class Product extends Model
         // Persona discount
         $personaDiscount = 0;
         if ($this->aesthetic) {
-            $personaDiscount = (float) (PersonaDiscount::where('aesthetic', $this->aesthetic)->first()->discount_percentage ?? 0);
+            $personaDiscount = \Illuminate\Support\Facades\Cache::remember("pd_{$this->aesthetic}", 3600, function () {
+                $pd = PersonaDiscount::where('aesthetic', $this->aesthetic)->first();
+                return $pd ? (float) $pd->discount_percentage : 0.0;
+            });
         }
 
         return max($productDiscount, $categoryDiscount, $personaDiscount);

@@ -134,7 +134,7 @@ class Shop extends Component
         return view('livewire.shop', [
             'products' => $products,
             'title' => $title,
-            'categories' => Category::all()
+            'categories' => \Illuminate\Support\Facades\Cache::remember('shop_cats', 3600, fn() => Category::all())
         ]);
     }
 }
